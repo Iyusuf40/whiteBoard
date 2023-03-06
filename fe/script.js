@@ -6,6 +6,10 @@ let prevY = 0
 let collectThirdPoint = false
 let skippedQue = []
 
+let drawOpts = {
+  mode: 'draw'
+}
+
 canvas.addEventListener("mousedown", function(e) {
   trackClick = !trackClick
 });
@@ -17,42 +21,51 @@ canvas.addEventListener("mouseup", function(e) {
   collectThirdPoint = false
 });
 
-canvas.addEventListener("mousemove", function(e) {
+canvas.addEventListener("mousemove", handleMouseMove);
+
+function handleMouseMove(e) {
   if (!trackClick) {
     return
   }
-  const x = e.pageX
-  const y = e.pageY
+  if (drawOpts.mode === 'draw') {
+    const x = e.pageX
+    const y = e.pageY
 
-  if (collectThirdPoint) {
-    skippedQue[2] = [x, y]
-    collectThirdPoint = false
-    // prevent race conditions by not using global skippedQue
-    let sq = [skippedQue[0], skippedQue[1], skippedQue[2]]
-    drawSkipped(canvas, sq)
-  }
+    if (collectThirdPoint) {
+      skippedQue[2] = [x, y]
+      collectThirdPoint = false
+      // prevent race conditions by not using global skippedQue
+      let sq = [skippedQue[0], skippedQue[1], skippedQue[2]]
+      drawSkipped(canvas, sq)
+    }
 
-  if (
-      (prevX !== 0 && prevY !== 0)
-    && ( 
-      ((abs(prevX) - abs(x)) > 5 || ((abs(prevX) - abs(x)) < 5)
-    || ((abs(prevY) - abs(y)) > 5) || (abs(prevY) - abs(y)) < 5)
-      )
-  ) {
-    collectThirdPoint = true
-    skippedQue[0] = [prevX, prevY]
-    skippedQue[1] = [x, y]
+    if (
+        (prevX !== 0 && prevY !== 0)
+      && ( 
+        ((abs(prevX) - abs(x)) > 5 || ((abs(prevX) - abs(x)) < 5)
+      || ((abs(prevY) - abs(y)) > 5) || (abs(prevY) - abs(y)) < 5)
+        )
+    ) {
+      collectThirdPoint = true
+      skippedQue[0] = [prevX, prevY]
+      skippedQue[1] = [x, y]
+    }
+    const el = write(`${x}px`, `${y}px`)
+    canvas.appendChild(el)
+    prevX = x
+    prevY = y
+  } else {
+    if(e.target.getAttribute('data-pos')) {
+      e.target.remove()
+    }
   }
-  const el = write(`${x}px`, `${y}px`)
-  canvas.appendChild(el)
-  prevX = x
-  prevY = y
-});
+}
 
 function write(x, y) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
+  ink.setAttribute('data-pos', `${x}:${y}`)
   return ink
 }
 
