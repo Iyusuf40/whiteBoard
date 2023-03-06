@@ -1,32 +1,48 @@
 const canvas = document.getElementsByClassName('canvas')[0]
 
-let trackClick = 0
+let trackClick = false
 let prevX = 0
 let prevY = 0
+let collectThirdPoint = false
+let skippedQue = []
 
 canvas.addEventListener("mousedown", function(e) {
-  trackClick = 1
+  trackClick = !trackClick
 });
 
 canvas.addEventListener("mouseup", function(e) {
-  trackClick = 0
+  trackClick = false
   prevX = 0
   prevY = 0
+  collectThirdPoint = false
 });
 
 canvas.addEventListener("mousemove", function(e) {
   if (!trackClick) {
     return
   }
-  const x = e.clientX
-  const y = e.clientY
-  if ((prevX || prevY) 
-    && (abs(prevX - x) > 5)
-    || (abs(prevY - y) > 5)) {
-      console.log(prevX - x, prevY - y)
-      // set flag to wait for 3rd position
-      // project line
-    }
+  const x = e.pageX
+  const y = e.pageY
+
+  if (collectThirdPoint) {
+    skippedQue[2] = [x, y]
+    collectThirdPoint = false
+    // prevent race conditions by not using global skippedQue
+    let sq = [skippedQue[0], skippedQue[1], skippedQue[2]]
+    drawSkipped(canvas, sq)
+  }
+
+  if (
+      (prevX !== 0 && prevY !== 0)
+    && ( 
+      ((abs(prevX) - abs(x)) > 5 || ((abs(prevX) - abs(x)) < 5)
+    || ((abs(prevY) - abs(y)) > 5) || (abs(prevY) - abs(y)) < 5)
+      )
+  ) {
+    collectThirdPoint = true
+    skippedQue[0] = [prevX, prevY]
+    skippedQue[1] = [x, y]
+  }
   const el = write(`${x}px`, `${y}px`)
   canvas.appendChild(el)
   prevX = x
@@ -43,4 +59,74 @@ function write(x, y) {
 function abs(val) {
   if (val < 0) return val * -1
   return val
+}
+
+function drawSkipped(canvas, skippedQue) {
+  const firstDiff = [skippedQue[0], skippedQue[1]]
+  const secondDiff = [skippedQue[1], skippedQue[2]]
+  connectTwoPoints(firstDiff, canvas)
+  connectTwoPoints(secondDiff, canvas)
+}
+
+function connectTwoPoints(pointsArr, canvas) {
+  let x1 = pointsArr[0][0]
+  let x2 = pointsArr[1][0]
+  let xDiff = abs(x1) - abs(x2)
+  let y1 = pointsArr[0][1]
+  let y2 = pointsArr[1][1]
+  let yDiff = abs(y1) - abs(y2)
+
+  let longest = null
+  if (abs(xDiff) >= abs(yDiff)) {
+    longest = abs(xDiff)
+  } else {
+    longest = abs(yDiff)
+  }
+
+  for (let i = 0; i < longest; i++) {
+    if (x1 === x2) {
+      x1 = x1
+    } else if (x1 > x2) {
+      x1--
+    } else {
+      x1++
+    }
+  
+    if (y1 === y2) {
+      y1 = y1
+    } else if (y1 > y2) {
+      y1--
+    } else {
+      y1++
+    }
+  
+    let el = write(`${x1}px`, `${y1}px`)
+    canvas.appendChild(el)
+  }
+}
+
+function getDirection(arr) {
+  if (arr.length === 3) {
+    return null
+  }
+  const firstPoint = arr[0]
+  const mid = arr[1]
+  const lastPoint = arr[2]
+  if (mid[0] > firstPoint[0] && mid[0] > lastPoint[0]) {
+    return ['+x', mid[0] - firstPoint[0], mid[0] - lastPoint[0]]
+  }
+
+  if (mid[0] < firstPoint[0] && mid[0] < lastPoint[0]) {
+    return ['-x', firstPoint[0] - mid[0], lastPoint[0] - mid[0]]
+  }
+
+  if (mid[1] > firstPoint[1] && mid[1] > lastPoint[1]) {
+    return ['+y', mid[1] - firstPoint[1], mid[1] - lastPoint[1]]
+  }
+
+  if (mid[1] < firstPoint[1] && mid[1] < lastPoint[1]) {
+    return ['-y', firstPoint[1] - mid[1], lastPoint[1] - mid[1]]
+  }
+
+  return null
 }
