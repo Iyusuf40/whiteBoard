@@ -10,18 +10,25 @@ let drawOpts = {
   mode: 'draw'
 }
 
-canvas.addEventListener("mousedown", function(e) {
-  trackClick = !trackClick
-});
+canvas.addEventListener("mousedown", handleMouseDown);
+canvas.addEventListener("touchstart", handleMouseDown);
 
-canvas.addEventListener("mouseup", function(e) {
+canvas.addEventListener("mouseup", handleMouseUp);
+canvas.addEventListener("touchend", handleMouseUp);
+
+canvas.addEventListener("mousemove", handleMouseMove);
+canvas.addEventListener("touchmove", handleMouseMove);
+
+function handleMouseUp(e) {
   trackClick = false
   prevX = 0
   prevY = 0
   collectThirdPoint = false
-});
+}
 
-canvas.addEventListener("mousemove", handleMouseMove);
+function handleMouseDown(e) {
+  trackClick = !trackClick
+}
 
 function handleMouseMove(e) {
   if (!trackClick) {
