@@ -11,7 +11,7 @@ let drawOpts = {
 }
 
 canvas.addEventListener("mousedown", handleMouseDown);
-canvas.addEventListener("touchstart", handleMouseDown);
+canvas.addEventListener("touchstart", handleTouchStart);
 
 canvas.addEventListener("mouseup", handleMouseUp);
 canvas.addEventListener("touchend", handleMouseUp);
@@ -28,6 +28,10 @@ function handleMouseUp(e) {
 
 function handleMouseDown(e) {
   trackClick = !trackClick
+}
+
+function handleTouchStart(e) {
+  trackClick = true
 }
 
 function handleMouseMove(e) {
