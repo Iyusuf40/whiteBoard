@@ -17,7 +17,7 @@ canvas.addEventListener("mouseup", handleMouseUp);
 canvas.addEventListener("touchend", handleMouseUp);
 
 canvas.addEventListener("mousemove", handleMouseMove);
-canvas.addEventListener("touchmove", handleMouseMove);
+canvas.addEventListener("touchmove", handleTouchMove);
 
 function handleMouseUp(e) {
   trackClick = false
@@ -41,6 +41,44 @@ function handleMouseMove(e) {
   if (drawOpts.mode === 'draw') {
     const x = e.pageX
     const y = e.pageY
+
+    if (collectThirdPoint) {
+      skippedQue[2] = [x, y]
+      collectThirdPoint = false
+      // prevent race conditions by not using global skippedQue
+      let sq = [skippedQue[0], skippedQue[1], skippedQue[2]]
+      drawSkipped(canvas, sq)
+    }
+
+    if (
+        (prevX !== 0 && prevY !== 0)
+      && ( 
+        ((abs(prevX) - abs(x)) > 5 || ((abs(prevX) - abs(x)) < 5)
+      || ((abs(prevY) - abs(y)) > 5) || (abs(prevY) - abs(y)) < 5)
+        )
+    ) {
+      collectThirdPoint = true
+      skippedQue[0] = [prevX, prevY]
+      skippedQue[1] = [x, y]
+    }
+    const el = write(`${x}px`, `${y}px`)
+    canvas.appendChild(el)
+    prevX = x
+    prevY = y
+  } else {
+    if(e.target.getAttribute('data-pos')) {
+      e.target.remove()
+    }
+  }
+}
+
+function handleTouchMove(e) {
+  if (!trackClick) {
+    return
+  }
+  if (drawOpts.mode === 'draw') {
+    const x = e.changedTouches[0].pageX
+    const y = e.changedTouches[0].pageY
 
     if (collectThirdPoint) {
       skippedQue[2] = [x, y]
