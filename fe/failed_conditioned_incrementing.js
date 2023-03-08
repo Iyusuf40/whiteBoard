@@ -137,31 +137,85 @@ function connectTwoPoints(pointsArr, canvas) {
   let y1 = pointsArr[0][1]
   let y2 = pointsArr[1][1]
   let yDiff = abs(y1) - abs(y2)
+  let actDiff = 1
+  let longDir = null
 
   let longest = null
+  let diffRatio = 0
+
+  let trackDiffRatio = 0
+
   if (abs(xDiff) >= abs(yDiff)) {
     longest = abs(xDiff)
+    longDir = 'x'
+    diffRatio = longest / abs(yDiff)
+    actDiff = longest - abs(yDiff)
   } else {
     longest = abs(yDiff)
+    longDir = 'y'
+    diffRatio = longest / abs(xDiff)
+    actDiff = longest - abs(xDiff)
   }
 
+  if (diffRatio === Infinity) {
+    diffRatio = longest
+  }
   for (let i = 0; i < longest; i++) {
-    if (x1 === x2) {
-      x1 = x1
-    } else if (x1 > x2) {
-      x1--
+    if (actDiff > 5) {
+      if (x1 === x2) {
+        x1 = x1
+      } else if (x1 > x2) {
+        x1--
+      } else {
+        x1++
+      }
+    
+      if (y1 === y2) {
+        y1 = y1
+      } else if (y1 > y2) {
+        y1--
+      } else {
+        y1++
+      }
     } else {
-      x1++
+      if (longDir === 'y') {
+        if (trackDiffRatio % diffRatio) {
+          if (x1 > x2) {
+            x1--
+          } else if (x1 < x2){
+            x1++
+          }
+        } 
+      } else {
+        if (x1 === x2) {
+          x1 = x1
+        } else if (x1 > x2) {
+          x1--
+        } else {
+          x1++
+        }
+      }  
+    
+      if (longDir === 'x') {
+        if (trackDiffRatio % diffRatio) {
+         if (y1 > y2) {
+            y1--
+          } else if (y1 < y2) {
+            y1++
+          }
+        } 
+      } else {
+        if (y1 === y2) {
+          y1 = y1
+        } else if (y1 > y2) {
+          y1--
+        } else {
+          y1++
+        }
+      }
     }
-  
-    if (y1 === y2) {
-      y1 = y1
-    } else if (y1 > y2) {
-      y1--
-    } else {
-      y1++
-    }
-  
+
+    trackDiffRatio += diffRatio
     let el = write(`${x1}px`, `${y1}px`)
     canvas.appendChild(el)
   }
