@@ -1,11 +1,20 @@
 const canvas = document.getElementsByClassName('canvas')[0]
+const modeButtons = document.getElementsByClassName('mode--buttons')
 
 let trackClick = false
 let collectThirdPoint = false
 let globalPoints = []
 
 let drawOpts = {
-  mode: 'draw'
+  mode: ''
+}
+
+Array.from(modeButtons).forEach(function(el) {
+  el.addEventListener('click', setMode)
+})
+
+function setMode(e) {
+  drawOpts.mode = e.target.getAttribute('data-mode')
 }
 
 canvas.addEventListener("mousedown", handleMouseDown);
@@ -33,6 +42,12 @@ function handleTouchStart(e) {
   trackClick = true
 }
 
+function erase(e) {
+  // collect data-pos
+  // send to backend
+  e.target.remove()
+}
+
 function handleMouseMove(e) {
   if (!trackClick) {
     return
@@ -44,9 +59,9 @@ function handleMouseMove(e) {
     globalPoints.push([x, y])
 
     if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
-  } else {
+  } else if (drawOpts.mode === 'erase'){
     if(e.target.getAttribute('data-pos')) {
-      e.target.remove()
+      erase(e)
     }
   }
 }
@@ -61,10 +76,10 @@ function handleTouchMove(e) {
 
     globalPoints.push([x, y])
 
-    if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
-  } else {
+  if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
+  } else if (drawOpts.mode === 'erase') {
     if(e.target.getAttribute('data-pos')) {
-      e.target.remove()
+      erase(e)
     }
   }
 }

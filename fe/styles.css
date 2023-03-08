@@ -21,6 +21,25 @@ span {
   position: absolute;
 }
 
+.mode--buttons {
+  color: black;
+  /* display: inline-block; */
+  border: 1px solid blue;
+  position: relative;
+  background-color: aliceblue;
+  margin: 20px;
+  width: 100px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  text-align: center;
+  line-height: 40px;
+}
+
+.mode--buttons:hover {
+  width: 110px;
+}
+
 .canvas {
   font-size: 0px;
   line-height: 0;
