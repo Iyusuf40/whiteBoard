@@ -78,10 +78,13 @@ function handleTouchMove(e) {
 
   if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
   } else if (drawOpts.mode === 'erase') {
-    const el = e.targetTouches[0].target
+    // const el = e.targetTouches[0].target
     // const el = document.elementFromPoint(loc.pageX, loc.pageY)
-    if(el.getAttribute('data-pos')) {
-      erase(el)
+    for (let i = 0; i < e.targetTouches.length; i++) {
+      const el = e.targetTouches[i].target
+      if(el.getAttribute('data-pos')) {
+        erase(el)
+      }
     }
   }
 }
