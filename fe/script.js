@@ -93,7 +93,7 @@ function handleTouchMove(e) {
     //     eraseT(el)
     //   }
     // }
-    const el = e.changedTouches[0].target
+    const el = e.targetTouches[0].target
     // console.log(el)
     if(el.getAttribute('data-pos')) {
       console.log(el)
