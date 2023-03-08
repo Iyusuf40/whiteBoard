@@ -48,6 +48,12 @@ function erase(e) {
   e.target.remove()
 }
 
+function eraseT(e) {
+  // collect data-pos
+  // send to backend
+  e.remove()
+}
+
 function handleMouseMove(e) {
   if (!trackClick) {
     return
@@ -84,7 +90,7 @@ function handleTouchMove(e) {
       const loc = e.changedTouches[i]
       const el = document.elementFromPoint(loc.pageX, loc.pageY)
       if(el.getAttribute('data-pos')) {
-        erase(el)
+        eraseT(el)
       }
     }
   }
