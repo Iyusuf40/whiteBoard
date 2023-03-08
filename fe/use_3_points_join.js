@@ -1,8 +1,10 @@
 const canvas = document.getElementsByClassName('canvas')[0]
 
 let trackClick = false
+let prevX = 0
+let prevY = 0
 let collectThirdPoint = false
-let globalPoints = []
+let skippedQue = []
 
 let drawOpts = {
   mode: 'draw'
@@ -22,7 +24,6 @@ function handleMouseUp(e) {
   prevX = 0
   prevY = 0
   collectThirdPoint = false
-  globalPoints = []
 }
 
 function handleMouseDown(e) {
@@ -41,9 +42,29 @@ function handleMouseMove(e) {
     const x = e.pageX
     const y = e.pageY
 
-    globalPoints.push([x, y])
+    if (collectThirdPoint) {
+      skippedQue[2] = [x, y]
+      collectThirdPoint = false
+      // prevent race conditions by not using global skippedQue
+      let sq = [skippedQue[0], skippedQue[1], skippedQue[2]]
+      drawSkipped(canvas, sq)
+    }
 
-    if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
+    if (
+        (prevX !== 0 && prevY !== 0)
+      && ( 
+        ((abs(prevX) - abs(x)) > 5 || ((abs(prevX) - abs(x)) < 5)
+      || ((abs(prevY) - abs(y)) > 5) || (abs(prevY) - abs(y)) < 5)
+        )
+    ) {
+      collectThirdPoint = true
+      skippedQue[0] = [prevX, prevY]
+      skippedQue[1] = [x, y]
+    }
+    const el = write(`${x}px`, `${y}px`)
+    canvas.appendChild(el)
+    prevX = x
+    prevY = y
   } else {
     if(e.target.getAttribute('data-pos')) {
       e.target.remove()
@@ -59,9 +80,29 @@ function handleTouchMove(e) {
     const x = e.changedTouches[0].pageX
     const y = e.changedTouches[0].pageY
 
-    globalPoints.push([x, y])
+    if (collectThirdPoint) {
+      skippedQue[2] = [x, y]
+      collectThirdPoint = false
+      // prevent race conditions by not using global skippedQue
+      let sq = [skippedQue[0], skippedQue[1], skippedQue[2]]
+      drawSkipped(canvas, sq)
+    }
 
-    if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
+    if (
+        (prevX !== 0 && prevY !== 0)
+      && ( 
+        ((abs(prevX) - abs(x)) > 5 || ((abs(prevX) - abs(x)) < 5)
+      || ((abs(prevY) - abs(y)) > 5) || (abs(prevY) - abs(y)) < 5)
+        )
+    ) {
+      collectThirdPoint = true
+      skippedQue[0] = [prevX, prevY]
+      skippedQue[1] = [x, y]
+    }
+    const el = write(`${x}px`, `${y}px`)
+    canvas.appendChild(el)
+    prevX = x
+    prevY = y
   } else {
     if(e.target.getAttribute('data-pos')) {
       e.target.remove()
@@ -82,10 +123,11 @@ function abs(val) {
   return val
 }
 
-function drawPoints(canvas, points) {
-  const diff = [points[0], points[1]]
-  connectTwoPoints(diff, canvas)
-  points.splice(0, 1)
+function drawSkipped(canvas, skippedQue) {
+  const firstDiff = [skippedQue[0], skippedQue[1]]
+  const secondDiff = [skippedQue[1], skippedQue[2]]
+  connectTwoPoints(firstDiff, canvas)
+  connectTwoPoints(secondDiff, canvas)
 }
 
 function connectTwoPoints(pointsArr, canvas) {
