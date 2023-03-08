@@ -84,21 +84,21 @@ function handleTouchMove(e) {
 
     if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
   } else if (drawOpts.mode === 'erase') {
-    
-    for (let i = 0; i < e.touches.length; i++) {
-      const loc = e.changedTouches[i]
-      const el = document.elementFromPoint(loc.pageX, loc.pageY)
-      if(el.getAttribute('data-pos')) {
-        console.log(el)
-        eraseT(el)
-      }
-    }
-    // const el = e.targetTouches[0].target
-    // // console.log(el)
-    // if(el.getAttribute('data-pos')) {
-    //   console.log(el)
-    //   eraseT(el)
+
+    // for (let i = 0; i < e.touches.length; i++) {
+    //   const loc = e.changedTouches[i]
+    //   const el = document.elementFromPoint(loc.pageX, loc.pageY)
+    //   if(el.getAttribute('data-pos')) {
+    //     // console.log(el)
+    //     eraseT(el)
+    //   }
     // }
+    const loc = e.targetTouches[0]
+    const el = document.elementFromPoint(loc.pageX, loc.pageY)
+    if(el.getAttribute('data-pos')) {
+      console.log(el)
+      eraseT(el)
+    }
   }
 }
 
