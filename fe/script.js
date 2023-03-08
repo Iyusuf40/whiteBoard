@@ -93,8 +93,9 @@ function handleTouchMove(e) {
     //     eraseT(el)
     //   }
     // }
-    const loc = e.targetTouches[0]
-    const el = document.elementFromPoint(loc.pageX, loc.pageY)
+    // const loc = e.targetTouches[0]
+    // const el = document.elementFromPoint(loc.pageX, loc.pageY)
+    const el = e.targetTouches[0].target
     if(el.getAttribute('data-pos')) {
       console.log(el)
       eraseT(el)
@@ -106,6 +107,7 @@ function write(x, y) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
+  ink.addEventListener('touchmove', handleTouchMove)
   ink.setAttribute('data-pos', `${x}:${y}`)
   return ink
 }
