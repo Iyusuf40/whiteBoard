@@ -86,12 +86,16 @@ function handleTouchMove(e) {
   } else if (drawOpts.mode === 'erase') {
     // const el = e.targetTouches[0].target
     // const el = document.elementFromPoint(loc.pageX, loc.pageY)
-    for (let i = 0; i < e.changedTouches.length; i++) {
-      const loc = e.changedTouches[i]
-      const el = document.elementFromPoint(loc.pageX, loc.pageY)
-      if(el.getAttribute('data-pos')) {
-        eraseT(el)
-      }
+    // for (let i = 0; i < e.changedTouches.length; i++) {
+    //   const loc = e.changedTouches[i]
+    //   const el = document.elementFromPoint(loc.pageX, loc.pageY)
+    //   if(el.getAttribute('data-pos')) {
+    //     eraseT(el)
+    //   }
+    // }
+    const el = e.changedTouches[0].target
+    if(el.getAttribute('data-pos')) {
+      eraseT(el)
     }
   }
 }
