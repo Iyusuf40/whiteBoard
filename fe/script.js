@@ -81,7 +81,8 @@ function handleTouchMove(e) {
     // const el = e.targetTouches[0].target
     // const el = document.elementFromPoint(loc.pageX, loc.pageY)
     for (let i = 0; i < e.changedTouches.length; i++) {
-      const el = e.changedTouches[i].target
+      const loc = e.changedTouches[i]
+      const el = document.elementFromPoint(loc.pageX, loc.pageY)
       if(el.getAttribute('data-pos')) {
         erase(el)
       }
