@@ -54,7 +54,6 @@ function eraseT(e) {
   // collect data-pos
   // send to backend
   e.remove()
-  locked = false
 }
 
 function handleMouseMoveDraw(e) {
@@ -100,11 +99,11 @@ function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
     if (locked) return
-    locked = true
     // const loc = e.changedTouches[0]
     // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
     const el = e.changedTouches[0].target
     if(el.getAttribute('data-pos')) {
+      locked = true
       console.log('will erase vc', el)
       eraseT(el)
       locked = false
