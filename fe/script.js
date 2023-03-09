@@ -103,8 +103,8 @@ function handleTouchMoveErase(e) {
     // const el = e.changedTouches[0].target
     // const el = e.targetTouches[0].target
     // console.log('in erase block')
-    for (let i = 0; i < e.targetTouches.length; i++) {
-      const el = e.targetTouches[i].target
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const el = e.changedTouches[i].target
       if(el.getAttribute('data-pos')) {
         console.log('will erase', el)
         eraseT(el)
