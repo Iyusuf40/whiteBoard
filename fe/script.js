@@ -25,7 +25,7 @@ canvas.addEventListener("touchend", handleMouseUp);
 
 canvas.addEventListener("mousemove", handleMouseMoveDraw);
 canvas.addEventListener("touchmove", handleTouchMoveDraw);
-// canvas.addEventListener("touchmove", handleTouchMoveErase);
+canvas.addEventListener("touchmove", handleTouchMoveErase);
 
 function handleMouseUp(e) {
   trackClick = false
