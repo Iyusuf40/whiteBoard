@@ -4,7 +4,6 @@ const modeButtons = document.getElementsByClassName('mode--buttons')
 let trackClick = false
 let collectThirdPoint = false
 let globalPoints = []
-let locked = false
 
 let drawOpts = {
   mode: ''
@@ -98,16 +97,11 @@ function handleTouchMoveDraw(e) {
 function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
-    if (locked) return
-    // const loc = e.changedTouches[0]
-    // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
-    let l = e.targetTouches.length - 1
-    const el = e.targetTouches[l].target
+    const loc = e.changedTouches[0]
+    const el =  document.elementFromPoint(loc.pageX, loc.pageY)
     if(el.getAttribute('data-pos')) {
-      locked = true
-      console.log('will erase tc', el)
+      console.log('will erase c', el)
       eraseT(el)
-      locked = false
     }
   }
 }
