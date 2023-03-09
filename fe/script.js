@@ -53,7 +53,7 @@ function eraseT(e) {
   // collect data-pos
   // send to backend
   // e.remove()
-  e.parentNode.removeChild(e)
+  canvas.removeChild(e)
 }
 
 function handleMouseMoveDraw(e) {
