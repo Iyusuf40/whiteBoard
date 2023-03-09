@@ -101,11 +101,11 @@ function handleTouchMoveErase(e) {
     if (locked) return
     // const loc = e.changedTouches[0]
     // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
-    let l = e.changedTouches.length - 1
-    const el = e.changedTouches[l].target
+    let l = e.targetTouches.length - 1
+    const el = e.targetTouches[l].target
     if(el.getAttribute('data-pos')) {
       locked = true
-      console.log('will erase vc', el)
+      console.log('will erase tc', el)
       eraseT(el)
       locked = false
     }
