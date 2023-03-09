@@ -53,7 +53,6 @@ function eraseT(e) {
   // collect data-pos
   // send to backend
   e.remove()
-  // e.parentNode.removeChild(e);
 }
 
 function handleMouseMoveDraw(e) {
@@ -96,18 +95,14 @@ function handleTouchMoveDraw(e) {
 }
 
 function handleTouchMoveErase(e) {
-  // if (!trackClick) {
-  //   return
-  // }
+
   if (drawOpts.mode === 'erase') {
-    // const el = e.changedTouches[0].target
-    // const el = e.targetTouches[0].target
-    // console.log('in erase block')
-    // const el = e.changedTouches[0].target
-    const loc = e.changedTouches[0]
-    const el =  document.elementFromPoint(loc.pageX, loc.pageY)
+
+    // const loc = e.changedTouches[0]
+    // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
+    const el = e.changedTouches[0].target
     if(el.getAttribute('data-pos')) {
-      console.log('will erase', el)
+      console.log('will erase l', el)
       eraseT(el)
     }
   }
