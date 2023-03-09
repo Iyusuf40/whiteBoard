@@ -100,7 +100,7 @@ function handleTouchMoveErase(e) {
 
     // const loc = e.changedTouches[0]
     // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
-    const el = e.changedTouches[0].target
+    var el = e.changedTouches[0].target
     if(el.getAttribute('data-pos')) {
       console.log('will erase l', el)
       eraseT(el)
