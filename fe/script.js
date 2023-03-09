@@ -51,6 +51,7 @@ function erase(e) {
 function eraseT(e) {
   // collect data-pos
   // send to backend
+  console.log('in eraseT')
   e.remove()
 }
 
@@ -99,9 +100,9 @@ function handleTouchMoveErase(e) {
   // }
   if (drawOpts.mode === 'erase') {
     const el = e.targetTouches[0].target
-    console.log('in erase block')
+    // console.log('in erase block')
     if(el.getAttribute('data-pos')) {
-      console.log(el)
+      // console.log(el)
       eraseT(el)
     }
   }
