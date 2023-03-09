@@ -99,15 +99,16 @@ function handleTouchMoveErase(e) {
   if (!trackClick) {
     return
   }
-  e.preventDefault()
   if (drawOpts.mode === 'erase') {
     // const el = e.changedTouches[0].target
-    const el = e.targetTouches[0].target
+    // const el = e.targetTouches[0].target
     // console.log('in erase block')
-    // const loc = 
-    if(el.getAttribute('data-pos')) {
-      console.log('will erase')
-      eraseT(el)
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const el = e.targetTouches[i].target
+      if(el.getAttribute('data-pos')) {
+        console.log('will erase')
+        eraseT(el)
+      }
     }
   }
 }
