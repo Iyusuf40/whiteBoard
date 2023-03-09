@@ -100,6 +100,7 @@ function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
     if (locked) return
+    locked = true
     // const loc = e.changedTouches[0]
     // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
     const el = e.changedTouches[0].target
