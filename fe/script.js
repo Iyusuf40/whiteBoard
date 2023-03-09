@@ -51,7 +51,7 @@ function erase(e) {
 function eraseT(e) {
   // collect data-pos
   // send to backend
-  console.log('in eraseT')
+  console.log(e)
   e.remove()
 }
 
