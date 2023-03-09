@@ -25,7 +25,7 @@ canvas.addEventListener("touchend", handleMouseUp);
 
 canvas.addEventListener("mousemove", handleMouseMoveDraw);
 canvas.addEventListener("touchmove", handleTouchMoveDraw);
-canvas.addEventListener("touchmove", handleTouchMoveErase);
+// canvas.addEventListener("touchmove", handleTouchMoveErase);
 
 function handleMouseUp(e) {
   trackClick = false
@@ -52,7 +52,8 @@ function erase(e) {
 function eraseT(e) {
   // collect data-pos
   // send to backend
-  e.remove()
+  // e.remove()
+  e.parentNode.removeChild(e)
 }
 
 function handleMouseMoveDraw(e) {
@@ -112,7 +113,7 @@ function write(x, y) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
-  // ink.addEventListener('touchmove', handleTouchMoveErase)
+  ink.addEventListener('touchmove', handleTouchMoveErase)
   ink.addEventListener('mousemove', handleMouseMoveErase)
   ink.setAttribute('data-pos', `${x}:${y}`)
   return ink
