@@ -94,15 +94,16 @@ function handleTouchMoveDraw(e) {
   }
 }
 
+var el = null;
 function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
 
     // const loc = e.changedTouches[0]
     // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
-    var el = e.changedTouches[0].target
+    el = e.changedTouches[0].target
     if(el.getAttribute('data-pos')) {
-      console.log('will erase l', el)
+      console.log('will erase v', el)
       eraseT(el)
     }
   }
