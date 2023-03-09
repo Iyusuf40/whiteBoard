@@ -101,6 +101,7 @@ function handleTouchMoveErase(e) {
   if (drawOpts.mode === 'draw') {
     const el = e.targetTouches[0].target
     if(el.getAttribute('data-pos')) {
+      console.log('erasing')
       eraseT(el)
     }
   }
