@@ -25,6 +25,7 @@ canvas.addEventListener("touchend", handleMouseUp);
 
 canvas.addEventListener("mousemove", handleMouseMoveDraw);
 canvas.addEventListener("touchmove", handleTouchMoveDraw);
+canvas.addEventListener("touchmove", handleTouchMoveErase);
 
 function handleMouseUp(e) {
   trackClick = false
@@ -98,7 +99,7 @@ function handleTouchMoveErase(e) {
   //   return
   // }
   if (drawOpts.mode === 'erase') {
-    const el = e.changedTouches[0].target
+    const el = e.targetTouches[0].target
     // console.log('in erase block')
     if(el.getAttribute('data-pos')) {
       console.log(el)
@@ -111,7 +112,7 @@ function write(x, y) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
-  ink.addEventListener('touchmove', handleTouchMoveErase)
+  // ink.addEventListener('touchmove', handleTouchMoveErase)
   ink.addEventListener('mousemove', handleMouseMoveErase)
   ink.setAttribute('data-pos', `${x}:${y}`)
   return ink
