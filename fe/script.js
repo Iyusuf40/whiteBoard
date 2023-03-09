@@ -103,9 +103,11 @@ function handleTouchMoveErase(e) {
     // const el = e.changedTouches[0].target
     // const el = e.targetTouches[0].target
     // console.log('in erase block')
-    const el = e.changedTouches[0].target
+    // const el = e.changedTouches[0].target
+    const loc = e.changedTouches[0]
+    const el =  document.elementFromPoint(loc.pageX, loc.pageY)
     if(el.getAttribute('data-pos')) {
-      console.log('will erase', el)
+      console.log('will erase loc', el)
       eraseT(el)
     }
   }
@@ -167,30 +169,4 @@ function connectTwoPoints(pointsArr, canvas) {
     let el = write(`${x1}px`, `${y1}px`)
     canvas.appendChild(el)
   }
-}
-
-function getDirection(arr) {
-  if (arr.length === 3) {
-    return null
-  }
-  const firstPoint = arr[0]
-  const mid = arr[1]
-  const lastPoint = arr[2]
-  if (mid[0] > firstPoint[0] && mid[0] > lastPoint[0]) {
-    return ['+x', mid[0] - firstPoint[0], mid[0] - lastPoint[0]]
-  }
-
-  if (mid[0] < firstPoint[0] && mid[0] < lastPoint[0]) {
-    return ['-x', firstPoint[0] - mid[0], lastPoint[0] - mid[0]]
-  }
-
-  if (mid[1] > firstPoint[1] && mid[1] > lastPoint[1]) {
-    return ['+y', mid[1] - firstPoint[1], mid[1] - lastPoint[1]]
-  }
-
-  if (mid[1] < firstPoint[1] && mid[1] < lastPoint[1]) {
-    return ['-y', firstPoint[1] - mid[1], lastPoint[1] - mid[1]]
-  }
-
-  return null
 }
