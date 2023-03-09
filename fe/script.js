@@ -23,8 +23,9 @@ canvas.addEventListener("touchstart", handleTouchStart);
 canvas.addEventListener("mouseup", handleMouseUp);
 canvas.addEventListener("touchend", handleMouseUp);
 
-canvas.addEventListener("mousemove", handleMouseMove);
-canvas.addEventListener("touchmove", handleTouchMove);
+canvas.addEventListener("mousemove", handleMouseMoveDraw);
+canvas.addEventListener("touchmove", handleTouchMoveDraw);
+// canvas.addEventListener("touchmove", handleTouchMoveErase);
 
 function handleMouseUp(e) {
   trackClick = false
@@ -52,9 +53,10 @@ function eraseT(e) {
   // collect data-pos
   // send to backend
   e.remove()
+  // e.parentNode.removeChild(e);
 }
 
-function handleMouseMove(e) {
+function handleMouseMoveDraw(e) {
   if (!trackClick) {
     return
   }
@@ -65,14 +67,21 @@ function handleMouseMove(e) {
     globalPoints.push([x, y])
 
     if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
-  } else if (drawOpts.mode === 'erase'){
+  }
+}
+
+function handleMouseMoveErase(e) {
+  if (!trackClick) {
+    return
+  }
+  if (drawOpts.mode === 'erase'){
     if(e.target.getAttribute('data-pos')) {
       erase(e)
     }
   }
 }
 
-function handleTouchMove(e) {
+function handleTouchMoveDraw(e) {
   if (!trackClick) {
     return
   }
@@ -83,22 +92,23 @@ function handleTouchMove(e) {
     globalPoints.push([x, y])
 
     if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
-  } else if (drawOpts.mode === 'erase') {
+  }
+}
 
-    // for (let i = 0; i < e.touches.length; i++) {
-    //   const loc = e.changedTouches[i]
-    //   const el = document.elementFromPoint(loc.pageX, loc.pageY)
-    //   if(el.getAttribute('data-pos')) {
-    //     // console.log(el)
-    //     eraseT(el)
-    //   }
-    // }
-    // const loc = e.targetTouches[0]
-    // const el = document.elementFromPoint(loc.pageX, loc.pageY)
-    const el = e.targetTouches[0].target
-    if(el.getAttribute('data-pos')) {
-      console.log(el)
-      eraseT(el)
+function handleTouchMoveErase(e) {
+  if (!trackClick) {
+    return
+  }
+  if (drawOpts.mode === 'erase') {
+    // const el = e.changedTouches[0].target
+    // const el = e.targetTouches[0].target
+    // console.log('in erase block')
+    for (let i = 0; i < e.targetTouches.length; i++) {
+      const el = e.targetTouches[i].target
+      if(el.getAttribute('data-pos')) {
+        console.log('will erase', el)
+        eraseT(el)
+      }
     }
   }
 }
@@ -107,7 +117,8 @@ function write(x, y) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
-  ink.addEventListener('touchmove', handleTouchMove)
+  ink.addEventListener('touchmove', handleTouchMoveErase)
+  ink.addEventListener('mousemove', handleMouseMoveErase)
   ink.setAttribute('data-pos', `${x}:${y}`)
   return ink
 }
