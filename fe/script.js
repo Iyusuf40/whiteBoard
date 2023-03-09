@@ -93,11 +93,15 @@ function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
     const loc = e.changedTouches[0]
-    const el =  document.elementFromPoint(loc.pageX, loc.pageY)
-    const data = el.getAttribute('data-pos')
-    if(data) {
-      eraseMultiple(data)
-    }
+    const surrounding = getSurroundingInk(loc.pageX, loc.pageY)
+    surrounding,forEach(function (pos) {
+      // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
+      const el =  document.elementFromPoint(pos[0], pos[1])
+      const data = el.getAttribute('data-pos')
+      if(data) {
+        eraseMultiple(data)
+      }
+    })
   }
 }
 
