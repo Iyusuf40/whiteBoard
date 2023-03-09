@@ -95,14 +95,11 @@ function handleTouchMoveDraw(e) {
 
 function handleTouchMoveErase(e) {
   if (!trackClick) {
-    console.log('returning')
     return
   }
-  console.log('entered')
-  if (drawOpts.mode === 'draw') {
+  if (drawOpts.mode === 'erase') {
     const el = e.targetTouches[0].target
     if(el.getAttribute('data-pos')) {
-      console.log('erasing')
       eraseT(el)
     }
   }
