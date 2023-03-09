@@ -109,7 +109,7 @@ function write(x, y) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
-  ink.addEventListener('touchmove', handleTouchMoveErase)
+  // ink.addEventListener('touchmove', handleTouchMoveErase)
   ink.addEventListener('mousemove', handleMouseMoveErase)
   ink.setAttribute('data-pos', `${x}:${y}`)
   return ink
