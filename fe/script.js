@@ -100,13 +100,13 @@ function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
     if (locked) return
-    locked = false
     // const loc = e.changedTouches[0]
     // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
     const el = e.changedTouches[0].target
     if(el.getAttribute('data-pos')) {
-      console.log('will erase v]lc', el)
+      console.log('will erase vc', el)
       eraseT(el)
+      locked = false
     }
   }
 }
