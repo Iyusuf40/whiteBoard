@@ -46,12 +46,6 @@ function handleTouchStart(e) {
 function erase(e) {
   // collect data-pos
   // send to backend
-  e.target.remove()
-}
-
-function eraseT(e) {
-  // collect data-pos
-  // send to backend
   e.remove()
 }
 
@@ -74,8 +68,9 @@ function handleMouseMoveErase(e) {
     return
   }
   if (drawOpts.mode === 'erase'){
-    if(e.target.getAttribute('data-pos')) {
-      erase(e)
+    const data = e.target.getAttribute('data-pos')
+    if(data) {
+      eraseMultiple(data)
     }
   }
 }
@@ -99,8 +94,9 @@ function handleTouchMoveErase(e) {
   if (drawOpts.mode === 'erase') {
     const loc = e.changedTouches[0]
     const el =  document.elementFromPoint(loc.pageX, loc.pageY)
-    if(el.getAttribute('data-pos')) {
-      eraseT(el)
+    const data = el.getAttribute('data-pos')
+    if(data) {
+      eraseMultiple(data)
     }
   }
 }
@@ -124,6 +120,27 @@ function drawPoints(canvas, points) {
   const diff = [points[0], points[1]]
   connectTwoPoints(diff, canvas)
   points.splice(0, 1)
+}
+
+function getSurroundingInk(x, y, diff=5) {
+  let arr = []
+  for (let i = x - diff; i <= x + diff; i++) {
+    for (let j = y - diff; j <= y + diff; j++) arr.push([i, j])
+  }
+  return arr
+}
+
+function eraseMultiple(position) {
+  const [x, y] = position.split(':')
+  const xCoordinate = Number(x.slice(0, x.length - 2))
+  const yCoordinate = Number(y.slice(0, y.length - 2))
+  const surroundingInk = getSurroundingInk(xCoordinate, yCoordinate)
+  surroundingInk.forEach(function(coordinate) {
+    const el = document.elementFromPoint(coordinate[0], coordinate[1])
+    if (el.getAttribute('data-pos')) {
+      erase(el)
+    }
+  })
 }
 
 function connectTwoPoints(pointsArr, canvas) {
