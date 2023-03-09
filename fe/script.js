@@ -100,6 +100,7 @@ function handleTouchMoveErase(e) {
     return
   }
   if (drawOpts.mode === 'erase') {
+    console.log(e)
     const el = e.changedTouches[0].target
     // console.log('in erase block')
     if(el.getAttribute('data-pos')) {
