@@ -2,7 +2,6 @@ const canvas = document.getElementsByClassName('canvas')[0]
 const modeButtons = document.getElementsByClassName('mode--buttons')
 
 let trackClick = false
-let collectThirdPoint = false
 let globalPoints = []
 
 let drawOpts = {
@@ -29,9 +28,6 @@ canvas.addEventListener("touchmove", handleTouchMoveErase);
 
 function handleMouseUp(e) {
   trackClick = false
-  prevX = 0
-  prevY = 0
-  collectThirdPoint = false
   globalPoints.splice(0, 1)
 }
 
@@ -80,8 +76,6 @@ function handleTouchMoveDraw(e) {
     return
   }
   if (drawOpts.mode === 'draw') {
-    // const x = e.changedTouches[0].pageX
-    // const y = e.changedTouches[0].pageY
     const x = e.touches[0].pageX
     const y = e.touches[0].pageY
 
@@ -94,11 +88,9 @@ function handleTouchMoveDraw(e) {
 function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
-    // const loc = e.changedTouches[0]
     const loc = e.touches[0]
-    const surrounding = getSurroundingInk(loc.pageX, loc.pageY)
+    const surrounding = getSurroundingInk(loc.pageX, loc.pageY, 10)
     surrounding.forEach(function (pos) {
-      // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
       const el =  document.elementFromPoint(pos[0], pos[1])
       const data = el.getAttribute('data-pos')
       if(data) {
@@ -112,7 +104,6 @@ function write(x, y) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
-  // ink.addEventListener('touchmove', handleTouchMoveErase)
   ink.addEventListener('mousemove', handleMouseMoveErase)
   ink.setAttribute('data-pos', `${x}:${y}`)
   return ink
