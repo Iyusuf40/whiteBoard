@@ -1,32 +1,12 @@
-const uuid = require('uuid');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
-const io = require ('socket.io')(server)
+const router = require('./routes/index')
+global.io = require ('socket.io')(server) //sorry man, Hate globals but had to do this
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-
-app.get('/', (req, res) => {
-	res.redirect(`/${uuid.v4()}`)
-})
-
-app.get('/:room', (req, res) => {
-	res.render('room', { roomId: req.params.room })
-});
-
-io.on('connection', socket => {
-	socket.on('join-room', (roomId, userId) => {
-		socket.join(roomId);
-		socket.on('ready', () => {
-			socket.to(roomId).emit('user-connected', userId)
-		})
-
-		socket.on('disconnect', () => {
-			socket.to(roomId).emit('user-disconnected', userId)
-		})
-	});
-})
+app.use(router)
 
 server.listen(3000, () => {
 	console.log('listening on port 3000');
