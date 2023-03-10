@@ -76,8 +76,8 @@ function handleTouchMoveDraw(e) {
     return
   }
   if (drawOpts.mode === 'draw') {
-    const x = e.touches[0].pageX
-    const y = e.touches[0].pageY
+    const x = e.changedTouches[0].pageX
+    const y = e.changedTouches[0].pageY
 
     globalPoints.push([x, y])
 
