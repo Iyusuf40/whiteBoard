@@ -92,7 +92,8 @@ function handleTouchMoveDraw(e) {
 function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
-    const loc = e.changedTouches[0]
+    // const loc = e.changedTouches[0]
+    const loc = e.touches[0]
     const surrounding = getSurroundingInk(loc.pageX, loc.pageY)
     surrounding.forEach(function (pos) {
       // const el =  document.elementFromPoint(loc.pageX, loc.pageY)
