@@ -41,9 +41,12 @@ class CanvasController {
 
   static async updatePoints(req, res) {
     if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
-    const key = req.body.key
+    const key = req.params.key
     const name = req.body.name
     const point = req.body.point
+    if (!name) return res.status(403).send({error: 'canvas name missing'}) 
+    if (!key) return res.status(403).send({error: 'key missing'}) 
+    if (!point) return res.status(403).send({error: 'point missing'}) 
     const x = point.x
     const y = point.y
     const action = req.body.action
@@ -64,8 +67,10 @@ class CanvasController {
 
   static async getCanvas(req, res) {
     if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
-    const key = req.body.key
-    const name = req.body.name
+    const key = req.params.key
+    const name = req.params.name
+    if (!name) return res.status(403).send({error: 'canvas name missing'}) 
+    if (!key) return res.status(403).send({error: 'key missing'})
     const canvasName = `${key}:${name}`
     const canvas = await CanvasController.findCanvas(canvasName)
     if (!canvas) return res.status(404).send({error: 'canvas Not found'})
@@ -80,11 +85,13 @@ class CanvasController {
     const name = req.body.name
     const user = await UsersController.findUser(id)
     if (!user) return res.status(404).send({error: 'user Not found'})   
+    if (!name) return res.status(403).send({error: 'canvas name missing'}) 
+    if (!key) return res.status(403).send({error: 'key missing'}) 
     const canvasName = `${key}:${name}`
     const canvas = await CanvasController.findCanvas(canvasName)
     if (canvas) return res.status(403).send({error: 'canvas already exists'}) 
     await dbClient.saveCanvas({name: canvasName, points: {}})
-    return res.status(201).send({name: canvasName})    
+    return res.status(201).send({name: name})    
   }
 
   static async findCanvas(name) {

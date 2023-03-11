@@ -12,8 +12,8 @@ router.post('/canvas_socket', CanvasController.createSock)
 
 router.put('/canvas_points/:key', CanvasController.updatePoints)
 
-router.get('/canvas/:key', CanvasController.getCanvas)
+router.get('/canvas/:key/:name', CanvasController.getCanvas)
 
-router.post('/canvas/:key', CanvasController.createCanvas)
+router.post('/canvas', CanvasController.createCanvas)
 
 module.exports = router
