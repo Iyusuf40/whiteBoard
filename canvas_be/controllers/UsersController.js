@@ -31,6 +31,12 @@ class UsersController {
     const user = await dbClient.findByColAndFilter('users', 'id', id)
     return user
   }
+
+  static async findUserByKey(key) {
+    if (!key) return null
+    const user = await dbClient.findByColAndFilter('users', 'key', key)
+    return user
+  }
 }
 
 module.exports = UsersController

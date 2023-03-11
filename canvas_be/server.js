@@ -31,12 +31,12 @@ const server = app.listen(3000, () => console.log('listening on 3000'))
 
 server.on('upgrade', function upgrade(req, socket, head) {
   
-    const path = req.path
+    const path = req.url
     const parts = path.split('/')
     const key = parts[parts.length - 1]
     const wss = CanvasController.globalSocketsServers[key]
-    wss.handleUpgrade(request, socket, head, function done(ws) {
-      wss.emit('connection', ws, request);
+    wss.handleUpgrade(req, socket, head, function done(ws) {
+      wss.emit('connection', ws, req);
     });
 
   });

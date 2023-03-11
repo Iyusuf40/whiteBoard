@@ -9,14 +9,20 @@ class CanvasController {
   static async createSock(req, res) {
     if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
 
-    // create server and add to globalSS
-    const id = req.body.id
     const key = req.body.key
-    // const name = req.body.name
-    if (!id) return res.status(401).send({error: 'id must be specified'})
+
     if (!key) return res.status(401).send({error: 'key must be specified'})
-    const user = await UsersController.findUser(id)
+    const user = await UsersController.findUserByKey(key)
     if (!user) return res.status(404).send({error: 'user Not found'})
+    if (CanvasController.globalSocketsServers[key]) return res.send({message: 'socket alive'})
+
+    /**
+     * 
+     * implement service that cleans socket servers after a period
+     * 
+     * ? a que that delays for eg 2hrs and then closes the wss
+     * 
+     */
     const wss = new WebSocketServer({noServer: true})
     wss.on('connection', (ws) => {
   
@@ -80,13 +86,12 @@ class CanvasController {
 
   static async createCanvas(req, res) {
     if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
-    const id = req.body.id
     const key = req.body.key
     const name = req.body.name
-    const user = await UsersController.findUser(id)
-    if (!user) return res.status(404).send({error: 'user Not found'})   
     if (!name) return res.status(403).send({error: 'canvas name missing'}) 
     if (!key) return res.status(403).send({error: 'key missing'}) 
+    const user = await UsersController.findUserByKey(key)
+    if (!user) return res.status(404).send({error: 'user Not found'})   
     const canvasName = `${key}:${name}`
     const canvas = await CanvasController.findCanvas(canvasName)
     if (canvas) return res.status(403).send({error: 'canvas already exists'}) 
