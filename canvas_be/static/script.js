@@ -129,7 +129,7 @@ function createSocket() {
 
   socket.addEventListener('open', (event) => {
     console.log('socket opened')
-    // socket.send('Hello Server!');
+    socket.send('Hello Server!');
   });
 
   socket.addEventListener('message', (event) => {

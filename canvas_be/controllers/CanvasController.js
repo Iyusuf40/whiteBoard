@@ -1,6 +1,7 @@
 const dbClient = require('../utils/dbClient')
 const UsersController = require('./UsersController')
 const WebSocketServer = require('ws').WebSocketServer
+const WebSocket = require('ws').WebSocket
 
 class CanvasController {
 
@@ -24,13 +25,19 @@ class CanvasController {
      * 
      */
     const wss = new WebSocketServer({noServer: true})
-    wss.on('connection', (ws) => {
-  
+    wss.on('connection', (ws, req) => {
+      const path = req.url
+      const parts = path.split('/')
+      const key = parts[parts.length - 1]
       ws.on('error', console.error)
       ws.on('message', (data) => {
         const recvd = data.toString('utf8')
+        const currWss = CanvasController.globalSocketsServers[key]
+        // the above code is unnecessary because currWss === wss
+        currWss.clients.forEach(function each(client) {
+          client.send(data);
+        });
         console.log(recvd)
-        ws.send('Hello client!')
       })
       
       ws.on('close', () => {
