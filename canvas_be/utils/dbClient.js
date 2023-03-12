@@ -27,15 +27,22 @@ class DBClient {
 
   async findByColAndFilter(collection, key, value) {
     let result = null;
-    let filter = JSON.parse(`{"${key}":"${value}"}`);
-    if (key === '_id') {
-      try {
-        filter = { _id: new ObjectId(value) };
-      } catch (err) {
-        console.log(err)
-        if (err) return null;
+    let filter = null;
+    if (typeof(value) === 'object') {
+      filter = value
+    } else {
+      if (key === '_id') {
+        try {
+          filter = { _id: new ObjectId(value) };
+        } catch (err) {
+          console.log(err)
+          if (err) return null;
+        }
+      } else {
+        filter = JSON.parse(`{"${key}":"${value}"}`);
       }
     }
+
     if (collection === 'users') {
       result = await this.usersCollection.findOne(filter);
     } else if (collection === 'canvas') {

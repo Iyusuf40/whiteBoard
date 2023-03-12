@@ -42,7 +42,18 @@ class CanvasController {
 
     CanvasController.globalSocketsServers[key] = wss
 
+    // setTimeout(() => CanvasController.closeWss(key), 5000)
+
     return res.status(201).send({message: 'web socket server created successfully'})
+  }
+
+  static async closeWss(key) {
+    if (!key) return
+    const wss = CanvasController.globalSocketsServers[key]
+    if (!wss) return
+    wss.close()
+    console.log(`WSS with key: ${key} closed`)
+    delete (CanvasController.globalSocketsServers[key])
   }
 
   static async updatePoints(req, res) {

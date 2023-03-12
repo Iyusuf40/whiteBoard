@@ -41,6 +41,16 @@ describe('test dbClient user collection', () => {
     const afterSave = await dbClient.findByColAndFilter('users', 'id', 'id');
     assert(afterSave !== null);
   });
+
+  it('should find a user with object passedd as filter directly', async () => {
+    await waitConnection();
+    const user = await dbClient.findByColAndFilter('users', 'key', 'not exist');
+    assert(!user);
+    await dbClient.saveUser({ id: 'id', key: 'key' });
+    const afterSave = await dbClient.findByColAndFilter('users', '', {id: 'id'});
+    assert(afterSave !== null);
+    assert(afterSave.id = 'id')
+  });
 });
 
 describe('test dbClient canvas collection', () => {

@@ -36,8 +36,9 @@ createRoomBtn.addEventListener('click', handleCreateWss)
 
 async function handleCreateAcct(e) {
   e.preventDefault()
-  const id = document.getElementById('create--act--form--val').value
-  const body = JSON.stringify({id: id})
+  const id = document.getElementById('create--act--id').value
+  const password = document.getElementById('create--act--passwd').value
+  const body = JSON.stringify({id, password})
   const data = await postData(baseUrl + 'account', body)
   if (!data) return alert('undefined behaviour occured during account creation')
   if (data.key) {
@@ -51,8 +52,9 @@ async function handleCreateAcct(e) {
 
 async function handleLoginSubmit(e) {
   e.preventDefault()
-  const id = document.getElementById('login--form--val').value
-  const body = JSON.stringify({id: id})
+  const id = document.getElementById('login--id').value
+  const password = document.getElementById('login--passwd').value
+  const body = JSON.stringify({id, password})
   const data = await postData(baseUrl + 'login', body)
   if (!data) return alert('undefined behaviour occured during login')
   if (data.key) {
