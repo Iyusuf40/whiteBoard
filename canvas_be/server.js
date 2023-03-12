@@ -25,6 +25,7 @@ const app = express()
 
 app.use(express.static('static'))
 app.use(express.json())
+app.set('view engine', 'ejs')
 app.use(router)
 
 const server = app.listen(3000, () => console.log('listening on 3000'))

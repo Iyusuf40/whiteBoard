@@ -25,6 +25,15 @@ class CanvasController {
      * 
      */
     const wss = new WebSocketServer({noServer: true})
+    /**
+     * 
+     * Alternatively: create 1 global WSS
+     * virtualize each room with key
+     * for every new connection add ws object to a list of ws objects
+     * indexed by key. so if a msg comes in we loop over each ws in
+     * keyed array and send msgs there
+     * 
+     */
     wss.on('connection', (ws, req) => {
       const path = req.url
       const parts = path.split('/')
@@ -35,7 +44,9 @@ class CanvasController {
         const currWss = CanvasController.globalSocketsServers[key]
         // the above code is unnecessary because currWss === wss
         currWss.clients.forEach(function each(client) {
-          client.send(data);
+          if (ws !== client) {
+            client.send(recvd);
+          }
         });
         console.log(recvd)
       })

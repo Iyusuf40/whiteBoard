@@ -9,6 +9,10 @@ body{
 	color: #5C6AC4;
 }
 
+.no--display {
+  display: none;
+}
+
 span {
   margin: 0;
   padding: 0;

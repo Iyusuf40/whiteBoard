@@ -1,14 +1,11 @@
 const root = document.getElementById('root')
-const createAccountForm = document.getElementById('create--act--form')
-const loginForm = document.getElementById('login--form')
-const canvasForm = document.getElementById('create--canvas--form')
-const createRoomBtn = document.getElementById('create--wss')
 const sendMsgBtn = document.getElementById('send--msg')
 
 let key = null
-let socket = null
 let canvasName = null
+let socket = null
 const baseUrl = 'http://localhost:3000/'
+let socketCreated = false
 let trackClick = false
 let globalPoints = []
 
@@ -36,81 +33,12 @@ const putOpt = {
   // body: REMEMBER TO USE SPREAD SYNTAX TO INCLUDE BODY
 }
 
-let socketCreated = false
-
-createAccountForm.addEventListener('submit', handleCreateAcct)
-loginForm.addEventListener('submit', handleLoginSubmit)
-canvasForm.addEventListener('submit', handleCanvasCreation)
-createRoomBtn.addEventListener('click', handleCreateWss)
 sendMsgBtn.addEventListener('click', sendMsg)
 
-async function handleCreateAcct(e) {
-  e.preventDefault()
-  const id = document.getElementById('create--act--id').value
-  const password = document.getElementById('create--act--passwd').value
-  const body = JSON.stringify({id, password})
-  const data = await postData(baseUrl + 'account', body)
-  if (!data) return alert('undefined behaviour occured during account creation')
-  if (data.key) {
-    key = data.key
-  } else if (data.error) {
-    alert (data.error)
-  } else {
-    throw new Error('undefined behavior occured')
-  } 
-}
-
-async function handleLoginSubmit(e) {
-  e.preventDefault()
-  const id = document.getElementById('login--id').value
-  const password = document.getElementById('login--passwd').value
-  const body = JSON.stringify({id, password})
-  const data = await postData(baseUrl + 'login', body)
-  if (!data) return alert('undefined behaviour occured during login')
-  if (data.key) {
-    key = data.key
-  } else if (data.error) {
-    alert (data.error)
-  } else {
-    throw new Error('undefined behavior occured')
-  }
-}
-
-async function handleCanvasCreation(e) {
-  e.preventDefault()
-  if (!key) return alert('you are not logged in')
-  const name = document.getElementById('create--canvas--form--val').value
-  const body = JSON.stringify({name: name, key: key})
-  const data = await postData(baseUrl + 'canvas', body)
-  if (!data) return alert('undefined behaviour occured during account creation')
-  if (data.name) {
-    alert(`canvas: ${data.name} created`)
-    canvasName = data.name
-  } else if (data.error) {
-    alert (data.error)
-    if (data.error === 'canvas already exists') canvasName = name
-  } else {
-    throw new Error('undefined behavior occured')
-  } 
-}
-
-async function handleCreateWss(e) {
-  e.preventDefault()
-  if (!key) return alert('you are not logged in')
-  if (!canvasName) return alert('no canvas created')
-  const body = JSON.stringify({key: key})
-  const data = await postData(baseUrl + 'canvas_socket', body)
-  if (!data) return alert('undefined behaviour occured during account creation')
-  if (data.message) {
-    alert(`${data.message}`)
-    createSocket() // create local sock and connect to remote
-    setSharedUrl(key)
-  } else if (data.error) {
-    alert (data.error)
-  } else {
-    throw new Error('undefined behavior occured')
-  } 
-}
+setKey()
+setCanvasName()
+createSocket()
+// buildCanvas()
 
 async function postData(url, data) {
   const postOptLocal = {...postOpt, body: data}
@@ -140,48 +68,6 @@ async function putData(url, data) {
     console.error(err)
     return null
   })
-}
-
-function createSocket() {
-
-  if (!key) return alert ('you are not logged in')
-
-  if (socketCreated) return
-
-  socket = new WebSocket('ws://localhost:3000/' + key);
-
-  socketCreated = true
-
-  socket.addEventListener('error', (err) => {
-    console.error(err)
-  })
-
-  socket.addEventListener('open', (event) => {
-    console.log('socket opened')
-    // socket.send('Hello Server!');
-  });
-
-  socket.addEventListener('message', (event) => {
-    console.log('Message from server ', event.data);
-  });
-
-  socket.addEventListener('close', (event) => {
-    console.log('socket closed')
-    socket.close();
-  });
-}
-
-function sendMsg(e) {
-  e.preventDefault()
-  if (!socket) return
-  socket.send('hello server!')
-}
-
-function setSharedUrl(key) {
-  if (!key) return alert('you are not logged in')
-  if (!canvasName) return alert('canvas not created')
-  const urlDiv = document.getElementById('share--url')
-  urlDiv.innerText = baseUrl + `join/${key}/${canvasName}`
 }
 
 /**
@@ -242,6 +128,53 @@ async function updateCanvasBE(action, x, y) {
   return res
 }
 
+function createSocket() {
+
+  if (!key) return alert ('you are not logged in')
+
+  if (socketCreated) return
+
+  socket = new WebSocket('ws://localhost:3000/' + key);
+
+  socketCreated = true
+
+  socket.addEventListener('error', (err) => {
+    console.error(err)
+  })
+
+  socket.addEventListener('open', (event) => {
+    console.log('socket opened')
+    // socket.send('Hello Server!');
+  });
+
+  socket.addEventListener('message', (event) => {
+    console.log('Message from server ', event.data);
+  });
+
+  socket.addEventListener('close', (event) => {
+    console.log('socket closed')
+    socket.close();
+  });
+}
+
+function sendMsg(e) {
+  e.preventDefault()
+  if (!socket) return
+  socket.send('hello server!')
+}
+
+function setKey() {
+  const keyEl = document.getElementById('key')
+  key = keyEl.innerText
+  if (!key) alert('key failed to set')
+}
+
+function setCanvasName() {
+  const canvasEl = document.getElementById('canvasName')
+  canvasName = canvasEl.innerText
+  if (!canvasName) alert ('canvas name failed to set')
+}
+
 function handleMouseUp(e) {
   trackClick = false
   globalPoints.splice(0, 1)
@@ -263,11 +196,11 @@ function write(x, y, persist=true, props=null) {
   ink.setAttribute('data-pos', `${x}:${y}`)
   if (persist) {
     // call updateCanvasBE
-    updateCanvasBE('write', x, y)
-    // to-do: send to socket
   }
   if (props) {
     // add additional properties to ink
+    updateCanvasBE('write', x, y)
+    // to-do: send to socket
   }
   return ink
 }
@@ -404,3 +337,4 @@ function connectTwoPoints(pointsArr, canvas) {
     canvas.appendChild(el)
   }
 }
+
