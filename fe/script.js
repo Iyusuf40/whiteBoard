@@ -100,12 +100,27 @@ function handleTouchMoveErase(e) {
   }
 }
 
-function write(x, y) {
+// function write(x, y) {
+//   let ink = document.createElement("span")
+//   ink.style.left = x
+//   ink.style.top = y
+//   ink.addEventListener('mousemove', handleMouseMoveErase)
+//   ink.setAttribute('data-pos', `${x}:${y}`)
+//   return ink
+// }
+
+function write(x, y, persist=true, props=null) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
   ink.addEventListener('mousemove', handleMouseMoveErase)
   ink.setAttribute('data-pos', `${x}:${y}`)
+  if (persist) {
+    // call updateCanvasBE
+  }
+  if (props) {
+    // add additional properties to ink
+  }
   return ink
 }
 
