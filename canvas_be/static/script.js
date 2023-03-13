@@ -220,6 +220,7 @@ function setupCanvas() {
   canvas.addEventListener("mousemove", handleMouseMoveDraw);
   canvas.addEventListener("touchmove", handleTouchMoveDraw);
   canvas.addEventListener("touchmove", handleTouchMoveErase);
+  // canvas.addEventListener('mousemove', handleMouseMoveErase)
 
   root.appendChild(canvas)
 }
@@ -308,9 +309,11 @@ function write(x, y, persist=true, props=null) {
 function erase(e) {
   // collect data-pos
   // send to backend
+  // console.log('erase called')
   const [x, y] = e.getAttribute('data-pos').split(':')
   e.remove()
-  updateCanvasBE('delete', x, y)
+  console.log('erase called')
+  // updateCanvasBE('delete', x, y)
   // to-do: send to socket
 }
 
@@ -335,8 +338,16 @@ function handleMouseMoveErase(e) {
   if (drawOpts.mode === 'erase'){
     const data = e.target.getAttribute('data-pos')
     if(data) {
-      // console.log('in data')
-      eraseMultiple(data)
+      /**
+       * 
+       * clientX and Y pos is necessary because in erasemult
+       * elements will be retrieved by using document.getElFromPos
+       * which uses view port positions
+       * 
+       * 
+       */
+      const _data = `${e.clientX}:${e.clientY}`
+      eraseMultiple(_data)
     }
   }
 }
@@ -359,12 +370,14 @@ function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
     const loc = e.changedTouches[0]
-    const surrounding = getSurroundingInk(loc.pageX, loc.pageY, 10)
+    const x = Math.floor(loc.clientX)
+    const y = Math.floor(loc.clientY)
+    const surrounding = getSurroundingInk(x, y, 10)
     surrounding.forEach(function (pos) {
       const el =  document.elementFromPoint(pos[0], pos[1])
       const data = el.getAttribute('data-pos')
       if(data) {
-        eraseMultiple(data)
+        erase(el)
       }
     })
   }
@@ -391,26 +404,24 @@ function getSurroundingInk(x, y, diff=5) {
 
 function eraseMultiple(position) {
   const [x, y] = position.split(':')
-  const xCoordinate = Number(x.slice(0, x.length - 2))
-  const yCoordinate = Number(y.slice(0, y.length - 2))
-  const surroundingInk = getSurroundingInk(xCoordinate, yCoordinate)
-  //
-  const el = document.elementFromPoint(xCoordinate, yCoordinate)
-  const gbcr = el.getBoundingClientRect()
-  const posx = gbcr.top;
-  const posy = gbcr.left;
-  console.log(posx, posy, position, gbcr)
-  if (el.getAttribute('data-pos')) erase(el)
-  //
-  // surroundingInk.forEach(function(coordinate) {
-  //   const el = document.elementFromPoint(coordinate[0], coordinate[1])
-  //   console.log('in erase mult', el)
-  //   if (el.getAttribute('data-pos')) {
-  //     console.log('offloaded to erase')
-  //     erase(el)
-  //   }
-  // })
+
+  /**
+   * 
+   * usage of Math.floor here is essential for performance.
+   * operations on floatin point numbers used crazy memory 
+   * and was super slow
+   * 
+   */
+  const surroundingInk = getSurroundingInk(Math.floor(x), Math.floor(y))
+  
+  surroundingInk.forEach(function(coordinate) {
+    const el = document.elementFromPoint(coordinate[0], coordinate[1])
+    if (el && el.getAttribute('data-pos')) {
+      erase(el)
+    }
+  })
 }
+
 
 function connectTwoPoints(pointsArr, canvas) {
   let x1 = pointsArr[0][0]
