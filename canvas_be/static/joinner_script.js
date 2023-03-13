@@ -1,6 +1,21 @@
 const root = document.getElementById('root')
 const sendMsgBtn = document.getElementById('send--msg')
+const modeButtons = document.getElementsByClassName('mode--buttons')
 
+
+let drawOpts = {
+  mode: ''
+}
+
+Array.from(modeButtons).forEach(function(el) {
+  el.addEventListener('click', setMode)
+})
+
+function setMode(e) {
+  drawOpts.mode = e.target.getAttribute('data-mode')
+}
+
+let canvas = null
 let key = null
 let canvasName = null
 let socket = null
@@ -9,9 +24,6 @@ let socketCreated = false
 let trackClick = false
 let globalPoints = []
 
-let drawOpts = {
-  mode: ''
-}
 
 const postOpt = {
   method: "POST",
@@ -76,6 +88,23 @@ async function putData(url, data) {
  * canvas functions from here bellow
  * 
  */
+
+function setupCanvas() {
+  let _canvas = document.createElement('div')
+  canvas = _canvas
+  canvas.className = 'canvas'
+  canvas.addEventListener("mousedown", handleMouseDown);
+  canvas.addEventListener("touchstart", handleTouchStart);
+
+  canvas.addEventListener("mouseup", handleMouseUp);
+  canvas.addEventListener("touchend", handleMouseUp);
+
+  canvas.addEventListener("mousemove", handleMouseMoveDraw);
+  canvas.addEventListener("touchmove", handleTouchMoveDraw);
+  canvas.addEventListener("touchmove", handleTouchMoveErase);
+
+  root.appendChild(canvas)
+}
 
 async function getCanvas(name=null) {
   const cName = name || canvasName

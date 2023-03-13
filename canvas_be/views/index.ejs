@@ -7,12 +7,20 @@
   <body>
       <h1 class="title">Hello, client static! </h1>
 
-      <div class="create--wss">
-        <input type="button" value="send message" id="send--msg">
+      <div id="container">
+        <div id="sidepane">
+          <div class="create--wss">
+            <input type="button" value="send message" id="send--msg">
+          </div>
+          <div id="key" class="no--display"><%= key %></div>
+          <div id="canvasName" class="no--display"><%= canvas %></div>
+          <div class="mode--container">
+            <span class="mode--buttons" data-mode="erase">erase</span>
+            <span class="mode--buttons" data-mode="draw">draw</span>
+          </div>
+        </div>
+        <div id="root"></div>
       </div>
-      <div id="key" class="no--display"><%= key %></div>
-      <div id="canvasName" class="no--display"><%= canvas %></div>
-      <div id="root"></div>
       <script src="/joinner_script.js"></script>
   </body>
 </html>

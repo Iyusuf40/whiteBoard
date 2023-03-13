@@ -4,17 +4,29 @@ const loginForm = document.getElementById('login--form')
 const canvasForm = document.getElementById('create--canvas--form')
 const createRoomBtn = document.getElementById('create--wss')
 const sendMsgBtn = document.getElementById('send--msg')
+const modeButtons = document.getElementsByClassName('mode--buttons')
 
-let key = null
-let socket = null
-let canvasName = null
-const baseUrl = 'http://localhost:3000/'
-let trackClick = false
-let globalPoints = []
 
 let drawOpts = {
   mode: ''
 }
+
+Array.from(modeButtons).forEach(function(el) {
+  el.addEventListener('click', setMode)
+})
+
+function setMode(e) {
+  drawOpts.mode = e.target.getAttribute('data-mode')
+}
+
+
+let key = null
+let socket = null
+let canvasName = null
+let canvas = null
+const baseUrl = 'http://localhost:3000/'
+let trackClick = false
+let globalPoints = []
 
 const postOpt = {
   method: "POST",
@@ -86,9 +98,13 @@ async function handleCanvasCreation(e) {
   if (data.name) {
     alert(`canvas: ${data.name} created`)
     canvasName = data.name
+    setupCanvas()
   } else if (data.error) {
     alert (data.error)
-    if (data.error === 'canvas already exists') canvasName = name
+    if (data.error === 'canvas already exists') {
+      canvasName = name
+      setupCanvas()
+    }
   } else {
     throw new Error('undefined behavior occured')
   } 
@@ -191,6 +207,23 @@ function setSharedUrl(key) {
  * 
  */
 
+function setupCanvas() {
+  let _canvas = document.createElement('div')
+  canvas = _canvas
+  canvas.className = 'canvas'
+  canvas.addEventListener("mousedown", handleMouseDown);
+  canvas.addEventListener("touchstart", handleTouchStart);
+
+  canvas.addEventListener("mouseup", handleMouseUp);
+  canvas.addEventListener("touchend", handleMouseUp);
+
+  canvas.addEventListener("mousemove", handleMouseMoveDraw);
+  canvas.addEventListener("touchmove", handleTouchMoveDraw);
+  canvas.addEventListener("touchmove", handleTouchMoveErase);
+
+  root.appendChild(canvas)
+}
+
 async function getCanvas(name=null) {
   const cName = name || canvasName
   if (!key) return alert('key required to get canvas')
@@ -263,7 +296,7 @@ function write(x, y, persist=true, props=null) {
   ink.setAttribute('data-pos', `${x}:${y}`)
   if (persist) {
     // call updateCanvasBE
-    updateCanvasBE('write', x, y)
+    // updateCanvasBE('write', x, y)
     // to-do: send to socket
   }
   if (props) {
@@ -302,6 +335,7 @@ function handleMouseMoveErase(e) {
   if (drawOpts.mode === 'erase'){
     const data = e.target.getAttribute('data-pos')
     if(data) {
+      // console.log('in data')
       eraseMultiple(data)
     }
   }
@@ -360,12 +394,22 @@ function eraseMultiple(position) {
   const xCoordinate = Number(x.slice(0, x.length - 2))
   const yCoordinate = Number(y.slice(0, y.length - 2))
   const surroundingInk = getSurroundingInk(xCoordinate, yCoordinate)
-  surroundingInk.forEach(function(coordinate) {
-    const el = document.elementFromPoint(coordinate[0], coordinate[1])
-    if (el.getAttribute('data-pos')) {
-      erase(el)
-    }
-  })
+  //
+  const el = document.elementFromPoint(xCoordinate, yCoordinate)
+  const gbcr = el.getBoundingClientRect()
+  const posx = gbcr.top;
+  const posy = gbcr.left;
+  console.log(posx, posy, position, gbcr)
+  if (el.getAttribute('data-pos')) erase(el)
+  //
+  // surroundingInk.forEach(function(coordinate) {
+  //   const el = document.elementFromPoint(coordinate[0], coordinate[1])
+  //   console.log('in erase mult', el)
+  //   if (el.getAttribute('data-pos')) {
+  //     console.log('offloaded to erase')
+  //     erase(el)
+  //   }
+  // })
 }
 
 function connectTwoPoints(pointsArr, canvas) {

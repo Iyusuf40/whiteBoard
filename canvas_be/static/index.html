@@ -6,55 +6,61 @@
   </head>
   <body>
       <h1 class="title">Hello, express static! </h1>
+      <div id="container">
+        <div id="sidepane">
+            <form action="" class="gen--form" id="create--act--form">
+                <div class="">
+                <label for="create--act--form">Enter an Id of your choice: </label>
+                <input type="text" name="create--act--form" id='create--act--id' required>
+                </div>
+                <div class="">
+                    <label for="create--act--form">Enter a password: </label>
+                    <input type="text" name="create--act--form" id='create--act--passwd' required>
+                </div>
+                <div class="">
+                <input type="submit" value="create account">
+                </div>
+            </form>
 
-      <form action="" class="gen--form" id="create--act--form">
-        <div class="">
-          <label for="create--act--form">Enter an Id of your choice: </label>
-          <input type="text" name="create--act--form" id='create--act--id' required>
-        </div>
-        <div class="">
-            <label for="create--act--form">Enter a password: </label>
-            <input type="text" name="create--act--form" id='create--act--passwd' required>
-        </div>
-        <div class="">
-          <input type="submit" value="create account">
-        </div>
-      </form>
+            <form action="" class="gen--form" id="login--form">
+                <div class="">
+                <label for="login--form">Enter your Id: </label>
+                <input type="text" name="login--form" id='login--id' required>
+                </div>
+                <div class="">
+                    <label for="create--act--form">Enter a password: </label>
+                    <input type="text" name="create--act--form" id='login--passwd' required>
+                </div>
+                <div class="">
+                <input type="submit" value="login">
+                </div>
+            </form>
 
-      <form action="" class="gen--form" id="login--form">
-        <div class="">
-          <label for="login--form">Enter your Id: </label>
-          <input type="text" name="login--form" id='login--id' required>
-        </div>
-        <div class="">
-            <label for="create--act--form">Enter a password: </label>
-            <input type="text" name="create--act--form" id='login--passwd' required>
-        </div>
-        <div class="">
-          <input type="submit" value="login">
-        </div>
-      </form>
+            <form action="" class="gen--form" id="create--canvas--form">
+                <div class="">
+                <label for="create--canvas--form">Enter canvas name: </label>
+                <input type="text" name="create--canvas--form" id='create--canvas--form--val' required>
+                </div>
+                <div class="">
+                <input type="submit" value="create canvas">
+                </div>
+            </form>
 
-      <form action="" class="gen--form" id="create--canvas--form">
-        <div class="">
-          <label for="create--canvas--form">Enter canvas name: </label>
-          <input type="text" name="create--canvas--form" id='create--canvas--form--val' required>
-        </div>
-        <div class="">
-          <input type="submit" value="create canvas">
-        </div>
-      </form>
+            <div class="create--wss">
+                <input type="button" value="create room" id="create--wss">
+            </div>
 
-      <div class="create--wss">
-        <input type="button" value="create room" id="create--wss">
+            <div class="create--wss">
+                <input type="button" value="send message" id="send--msg">
+            </div>
+            <div id="share--url"></div>
+            <div class="mode--container">
+                <span class="mode--buttons" data-mode="erase">erase</span>
+                <span class="mode--buttons" data-mode="draw">draw</span>
+            </div>
+        </div>
+        <div id="root"></div>
       </div>
-
-      <div class="create--wss">
-        <input type="button" value="send message" id="send--msg">
-      </div>
-
-      <div id="root"></div>
-      <div id="share--url"></div>
       <script src="/script.js"></script>
   </body>
 </html>
