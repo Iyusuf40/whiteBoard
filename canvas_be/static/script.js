@@ -165,7 +165,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('ws://localhost:3000/' + key);
+  socket = new WebSocket('ws://web-01.cloza.tech:3000/' + key);
 
   socketCreated = true
 
