@@ -1,13 +1,20 @@
 const canvas = document.getElementsByClassName('canvas')[0]
+const modeButtons = document.getElementsByClassName('mode--buttons')
 
 let trackClick = false
-let prevX = 0
-let prevY = 0
 let collectThirdPoint = false
-let skippedQue = []
+let globalPoints = []
 
 let drawOpts = {
-  mode: 'draw'
+  mode: ''
+}
+
+Array.from(modeButtons).forEach(function(el) {
+  el.addEventListener('click', setMode)
+})
+
+function setMode(e) {
+  drawOpts.mode = e.target.getAttribute('data-mode')
 }
 
 canvas.addEventListener("mousedown", handleMouseDown);
@@ -16,14 +23,16 @@ canvas.addEventListener("touchstart", handleTouchStart);
 canvas.addEventListener("mouseup", handleMouseUp);
 canvas.addEventListener("touchend", handleMouseUp);
 
-canvas.addEventListener("mousemove", handleMouseMove);
-canvas.addEventListener("touchmove", handleTouchMove);
+canvas.addEventListener("mousemove", handleMouseMoveDraw);
+canvas.addEventListener("touchmove", handleTouchMoveDraw);
+// canvas.addEventListener("touchmove", handleTouchMoveErase);
 
 function handleMouseUp(e) {
   trackClick = false
   prevX = 0
   prevY = 0
   collectThirdPoint = false
+  globalPoints.splice(0, 1)
 }
 
 function handleMouseDown(e) {
@@ -34,7 +43,20 @@ function handleTouchStart(e) {
   trackClick = true
 }
 
-function handleMouseMove(e) {
+function erase(e) {
+  // collect data-pos
+  // send to backend
+  e.target.remove()
+}
+
+function eraseT(e) {
+  // collect data-pos
+  // send to backend
+  e.remove()
+  // e.parentNode.removeChild(e);
+}
+
+function handleMouseMoveDraw(e) {
   if (!trackClick) {
     return
   }
@@ -42,37 +64,24 @@ function handleMouseMove(e) {
     const x = e.pageX
     const y = e.pageY
 
-    if (collectThirdPoint) {
-      skippedQue[2] = [x, y]
-      collectThirdPoint = false
-      // prevent race conditions by not using global skippedQue
-      let sq = [skippedQue[0], skippedQue[1], skippedQue[2]]
-      drawSkipped(canvas, sq)
-    }
+    globalPoints.push([x, y])
 
-    if (
-        (prevX !== 0 && prevY !== 0)
-      && ( 
-        ((abs(prevX) - abs(x)) > 5 || ((abs(prevX) - abs(x)) < 5)
-      || ((abs(prevY) - abs(y)) > 5) || (abs(prevY) - abs(y)) < 5)
-        )
-    ) {
-      collectThirdPoint = true
-      skippedQue[0] = [prevX, prevY]
-      skippedQue[1] = [x, y]
-    }
-    const el = write(`${x}px`, `${y}px`)
-    canvas.appendChild(el)
-    prevX = x
-    prevY = y
-  } else {
+    if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
+  }
+}
+
+function handleMouseMoveErase(e) {
+  if (!trackClick) {
+    return
+  }
+  if (drawOpts.mode === 'erase'){
     if(e.target.getAttribute('data-pos')) {
-      e.target.remove()
+      erase(e)
     }
   }
 }
 
-function handleTouchMove(e) {
+function handleTouchMoveDraw(e) {
   if (!trackClick) {
     return
   }
@@ -80,32 +89,26 @@ function handleTouchMove(e) {
     const x = e.changedTouches[0].pageX
     const y = e.changedTouches[0].pageY
 
-    if (collectThirdPoint) {
-      skippedQue[2] = [x, y]
-      collectThirdPoint = false
-      // prevent race conditions by not using global skippedQue
-      let sq = [skippedQue[0], skippedQue[1], skippedQue[2]]
-      drawSkipped(canvas, sq)
-    }
+    globalPoints.push([x, y])
 
-    if (
-        (prevX !== 0 && prevY !== 0)
-      && ( 
-        ((abs(prevX) - abs(x)) > 5 || ((abs(prevX) - abs(x)) < 5)
-      || ((abs(prevY) - abs(y)) > 5) || (abs(prevY) - abs(y)) < 5)
-        )
-    ) {
-      collectThirdPoint = true
-      skippedQue[0] = [prevX, prevY]
-      skippedQue[1] = [x, y]
-    }
-    const el = write(`${x}px`, `${y}px`)
-    canvas.appendChild(el)
-    prevX = x
-    prevY = y
-  } else {
-    if(e.target.getAttribute('data-pos')) {
-      e.target.remove()
+    if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
+  }
+}
+
+function handleTouchMoveErase(e) {
+  if (!trackClick) {
+    return
+  }
+  if (drawOpts.mode === 'erase') {
+    // const el = e.changedTouches[0].target
+    // const el = e.targetTouches[0].target
+    // console.log('in erase block')
+    for (let i = 0; i < e.targetTouches.length; i++) {
+      const el = e.targetTouches[i].target
+      if(el.getAttribute('data-pos')) {
+        console.log('will erase')
+        eraseT(el)
+      }
     }
   }
 }
@@ -114,6 +117,8 @@ function write(x, y) {
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
+  ink.addEventListener('touchmove', handleTouchMoveErase)
+  ink.addEventListener('mousemove', handleMouseMoveErase)
   ink.setAttribute('data-pos', `${x}:${y}`)
   return ink
 }
@@ -123,11 +128,10 @@ function abs(val) {
   return val
 }
 
-function drawSkipped(canvas, skippedQue) {
-  const firstDiff = [skippedQue[0], skippedQue[1]]
-  const secondDiff = [skippedQue[1], skippedQue[2]]
-  connectTwoPoints(firstDiff, canvas)
-  connectTwoPoints(secondDiff, canvas)
+function drawPoints(canvas, points) {
+  const diff = [points[0], points[1]]
+  connectTwoPoints(diff, canvas)
+  points.splice(0, 1)
 }
 
 function connectTwoPoints(pointsArr, canvas) {

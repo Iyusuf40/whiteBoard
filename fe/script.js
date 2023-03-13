@@ -66,7 +66,16 @@ function handleMouseMoveErase(e) {
   if (drawOpts.mode === 'erase'){
     const data = e.target.getAttribute('data-pos')
     if(data) {
-      eraseMultiple(data)
+      /**
+       * 
+       * clientX and Y pos is necessary because in erasemult
+       * elements will be retrieved by using document.getElFromPos
+       * which uses view port positions
+       * 
+       * 
+       */
+      const _data = `${e.clientX}:${e.clientY}`
+      eraseMultiple(_data)
     }
   }
 }
@@ -89,25 +98,20 @@ function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
     const loc = e.changedTouches[0]
-    const surrounding = getSurroundingInk(loc.pageX, loc.pageY, 10)
+    const x = Math.floor(loc.clientX)
+    const y = Math.floor(loc.clientY)
+    const surrounding = getSurroundingInk(x, y, 10)
     surrounding.forEach(function (pos) {
       const el =  document.elementFromPoint(pos[0], pos[1])
       const data = el.getAttribute('data-pos')
       if(data) {
-        eraseMultiple(data)
+        // const _data = `${e.clientX}:${e.clientY}`
+        // eraseMultiple(_data)
+        erase(el)
       }
     })
   }
 }
-
-// function write(x, y) {
-//   let ink = document.createElement("span")
-//   ink.style.left = x
-//   ink.style.top = y
-//   ink.addEventListener('mousemove', handleMouseMoveErase)
-//   ink.setAttribute('data-pos', `${x}:${y}`)
-//   return ink
-// }
 
 function write(x, y, persist=true, props=null) {
   let ink = document.createElement("span")
@@ -145,12 +149,12 @@ function getSurroundingInk(x, y, diff=5) {
 
 function eraseMultiple(position) {
   const [x, y] = position.split(':')
-  const xCoordinate = Number(x.slice(0, x.length - 2))
-  const yCoordinate = Number(y.slice(0, y.length - 2))
-  const surroundingInk = getSurroundingInk(xCoordinate, yCoordinate)
+  // const xCoordinate = Number(x.slice(0, x.length - 2))
+  // const yCoordinate = Number(y.slice(0, y.length - 2))
+  const surroundingInk = getSurroundingInk(Math.floor(x), Math.floor(y))
   surroundingInk.forEach(function(coordinate) {
     const el = document.elementFromPoint(coordinate[0], coordinate[1])
-    if (el.getAttribute('data-pos')) {
+    if (el && el.getAttribute('data-pos')) {
       erase(el)
     }
   })
