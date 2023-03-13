@@ -41,6 +41,7 @@ class CanvasController {
       ws.on('error', console.error)
       ws.on('message', (data) => {
         const recvd = data.toString('utf8')
+        const payload = JSON.parse(recvd)
         const currWss = CanvasController.globalSocketsServers[key]
         // the above code is unnecessary because currWss === wss
         currWss.clients.forEach(function each(client) {
@@ -48,7 +49,7 @@ class CanvasController {
             client.send(recvd);
           }
         });
-        console.log(recvd)
+        // console.log(recvd)
       })
       
       ws.on('close', () => {
@@ -85,18 +86,19 @@ class CanvasController {
     const x = point.x
     const y = point.y
     const action = req.body.action
+    if (!action) return res.status(403).send({error: 'action missing'}) 
     const canvasName = `${key}:${name}`
     const canvas = await CanvasController.findCanvas(canvasName)
     if (!canvas) return res.status(404).send({error: 'canvas Not found'})
     if (action == 'delete') {
-      const filter = {name: canvasName, points: point}
+      const filter = {name: canvasName}
       const r = await dbClient.deletePoint('canvas', filter, `points.${x}:${y}`, {})
-      if (!r) return res.status(500).send({error: 'update failed'})
+      if (!r.modifiedCount) return res.status(500).send({error: 'update failed'})
       return res.send({messgae: 'updated successfully'})
     }
     const filter = {name: canvasName}
     const resp = await dbClient.updateOne('canvas', filter, `points.${x}:${y}`, point)
-    if (!resp) return res.status(500).send({error: 'update failed'})
+    if (!resp.modifiedCount) return res.status(500).send({error: 'update failed'})
     return res.send({messgae: 'updated successfully'})
   }
 

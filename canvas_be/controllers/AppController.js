@@ -11,6 +11,7 @@ class AppController {
       return res.status(403).send({error: 'no socket with the key you provided'})
     }
     const canvasName = `${key}:${name}`
+    // const canvasName = name
     const canvas = await CanvasController.findCanvas(canvasName)
     if (!canvas) return res.status(403).send({error: 'no canvas with the name you provided'})
     return res.render('index', {key: key, canvas: canvasName})

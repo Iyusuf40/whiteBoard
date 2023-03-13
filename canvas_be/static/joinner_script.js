@@ -23,6 +23,7 @@ const baseUrl = 'http://localhost:3000/'
 let socketCreated = false
 let trackClick = false
 let globalPoints = []
+let globalElRepo = {}
 
 
 const postOpt = {
@@ -49,8 +50,9 @@ sendMsgBtn.addEventListener('click', sendMsg)
 
 setKey()
 setCanvasName()
+setupCanvas()
 createSocket()
-// buildCanvas()
+buildCanvas()
 
 async function postData(url, data) {
   const postOptLocal = {...postOpt, body: data}
@@ -107,6 +109,7 @@ function setupCanvas() {
 }
 
 async function getCanvas(name=null) {
+  if (!canvasName) return alert('canvas name not set')
   const cName = name || canvasName
   if (!key) return alert('key required to get canvas')
   if (!cName) return alert('canvas name required to get canvas')
@@ -127,15 +130,17 @@ async function getCanvas(name=null) {
 }
 
 async function buildCanvas(name=null) {
-  const cName = name || canvasName
+  if (!canvasName) return alert('canvas name not set')
+  let cName = name || canvasName
   if (!key) return alert('key required to get canvas')
   if (!cName) return alert('canvas name required to get canvas')
-  const canvas = await getCanvas()
-  if (!canvas) return alert(`canvas: ${cName} not found`)
-  Object.keys(canvas.points).forEach((point) => {
+  const _canvas = await getCanvas(cName)
+  if (!_canvas) return alert(`canvas: ${cName} not found`)
+  Object.keys(_canvas.points).forEach((point) => {
     const [x, y] = point.split(':')
     // const props = canvas.points[point]
-    write(x, y, false)
+    const ink = write(x, y, false)
+    canvas.appendChild(ink)
   })
 }
 
@@ -152,7 +157,8 @@ async function updateCanvasBE(action, x, y) {
   if (!canvasName) return alert('no canvas chosen')
   if (!x || !y) return alert('coordinates missing')
   const url = baseUrl + `canvas_points/${key}`
-  const payload = JSON.stringify({action, x, y, key, name: canvasName})
+  const name = canvasName
+  const payload = JSON.stringify({action, point: {x, y}, key, name})
   const res = await putData(url, payload)
   return res
 }
@@ -174,16 +180,43 @@ function createSocket() {
   socket.addEventListener('open', (event) => {
     console.log('socket opened')
     // socket.send('Hello Server!');
+    // sendToSocket('write', -12, 7)
   });
 
   socket.addEventListener('message', (event) => {
-    console.log('Message from server ', event.data);
+    const data = JSON.parse(event.data)
+    handleSocketMessage(data)
   });
 
   socket.addEventListener('close', (event) => {
     console.log('socket closed')
     socket.close();
   });
+}
+
+function handleSocketMessage(data) {
+  const {action, x, y} = data
+  if (!action) return console.log('action missing')
+  if (!x) return console.log('x-axis missing')
+  if (!y) return console.log('y-axis missing')
+  if (action === 'delete') {
+    eraseWrapper(x, y)
+  } else {
+    writeWrapper(x, y)
+  }
+}
+
+function eraseWrapper(x, y) {
+  if (!x || !y) return console.log('required params missing')
+  const key = `${x}:${y}`
+  const el = globalElRepo[key]
+  erase(el, false)
+}
+
+function writeWrapper(x, y) {
+  if (!x || !y) return console.log('required params missing')
+  const ink = write(x, y, false)
+  canvas.appendChild(ink)
 }
 
 function sendMsg(e) {
@@ -201,6 +234,7 @@ function setKey() {
 function setCanvasName() {
   const canvasEl = document.getElementById('canvasName')
   canvasName = canvasEl.innerText
+  canvasName = canvasName.split(":")[1]
   if (!canvasName) alert ('canvas name failed to set')
 }
 
@@ -225,22 +259,28 @@ function write(x, y, persist=true, props=null) {
   ink.setAttribute('data-pos', `${x}:${y}`)
   if (persist) {
     // call updateCanvasBE
+    updateCanvasBE('write', x, y)
+    sendToSocket('write', x, y)
   }
   if (props) {
     // add additional properties to ink
-    updateCanvasBE('write', x, y)
-    // to-do: send to socket
   }
+  const key = `${x}:${y}`
+  globalElRepo[key] = ink
   return ink
 }
 
-function erase(e) {
+function erase(e, persist=true) {
   // collect data-pos
   // send to backend
-  const [x, y] = e.getAttribute('data-pos').split(':')
+  const key = e.getAttribute('data-pos')
+  const [x, y] = key.split(':')
   e.remove()
-  updateCanvasBE('delete', x, y)
-  // to-do: send to socket
+  delete(globalElRepo[key])
+  if (persist) {
+    updateCanvasBE('delete', x, y)
+    sendToSocket('delete', x, y)
+  }
 }
 
 function handleMouseMoveDraw(e) {
@@ -248,8 +288,8 @@ function handleMouseMoveDraw(e) {
     return
   }
   if (drawOpts.mode === 'draw') {
-    const x = e.pageX
-    const y = e.pageY
+    const x = Math.floor(e.pageX)
+    const y = Math.floor(e.pageY)
 
     globalPoints.push([x, y])
 
@@ -264,7 +304,16 @@ function handleMouseMoveErase(e) {
   if (drawOpts.mode === 'erase'){
     const data = e.target.getAttribute('data-pos')
     if(data) {
-      eraseMultiple(data)
+      /**
+       * 
+       * clientX and Y pos is necessary because in erasemult
+       * elements will be retrieved by using document.getElFromPos
+       * which uses view port positions
+       * 
+       * 
+       */
+      const _data = `${e.clientX}:${e.clientY}`
+      eraseMultiple(_data)
     }
   }
 }
@@ -274,8 +323,8 @@ function handleTouchMoveDraw(e) {
     return
   }
   if (drawOpts.mode === 'draw') {
-    const x = e.changedTouches[0].pageX
-    const y = e.changedTouches[0].pageY
+    const x = Math.floor(e.changedTouches[0].pageX)
+    const y = Math.floor(e.changedTouches[0].pageY)
 
     globalPoints.push([x, y])
 
@@ -287,12 +336,14 @@ function handleTouchMoveErase(e) {
 
   if (drawOpts.mode === 'erase') {
     const loc = e.changedTouches[0]
-    const surrounding = getSurroundingInk(loc.pageX, loc.pageY, 10)
+    const x = Math.floor(loc.clientX)
+    const y = Math.floor(loc.clientY)
+    const surrounding = getSurroundingInk(x, y, 10)
     surrounding.forEach(function (pos) {
       const el =  document.elementFromPoint(pos[0], pos[1])
       const data = el.getAttribute('data-pos')
       if(data) {
-        eraseMultiple(data)
+        erase(el)
       }
     })
   }
@@ -319,12 +370,19 @@ function getSurroundingInk(x, y, diff=5) {
 
 function eraseMultiple(position) {
   const [x, y] = position.split(':')
-  const xCoordinate = Number(x.slice(0, x.length - 2))
-  const yCoordinate = Number(y.slice(0, y.length - 2))
-  const surroundingInk = getSurroundingInk(xCoordinate, yCoordinate)
+
+  /**
+   * 
+   * usage of Math.floor here is essential for performance.
+   * operations on floatin point numbers used crazy memory 
+   * and was super slow
+   * 
+   */
+  const surroundingInk = getSurroundingInk(Math.floor(x), Math.floor(y))
+  
   surroundingInk.forEach(function(coordinate) {
     const el = document.elementFromPoint(coordinate[0], coordinate[1])
-    if (el.getAttribute('data-pos')) {
+    if (el && el.getAttribute('data-pos')) {
       erase(el)
     }
   })
@@ -367,3 +425,11 @@ function connectTwoPoints(pointsArr, canvas) {
   }
 }
 
+function sendToSocket(action, x, y) {
+  if (!x) return alert('x-axis missing')
+  if (!y) return alert('y-axis missing')
+  if (!action) return alert('action missing')
+  if (!socket) return alert('no socket set')
+  const data = JSON.stringify({action, x, y})
+  socket.send(data)
+}
