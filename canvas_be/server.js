@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const router = require('./routes/index')
 const CanvasController = require('./controllers/CanvasController')
 const WebSocketServer = require('ws').WebSocketServer
@@ -23,6 +24,7 @@ wss.on('connection', (ws) => {
 
 const app = express()
 
+app.use(cors())
 app.use(express.static('static'))
 app.use(express.json())
 app.set('view engine', 'ejs')
