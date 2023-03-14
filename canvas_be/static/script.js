@@ -192,7 +192,7 @@ function createSocket() {
 function sendMsg(e) {
   e.preventDefault()
   if (!socket) return
-  sendToSocket('write', 12, -7)
+  sendToSocket('no action', 12, -7)
 }
 
 function setSharedUrl(key) {

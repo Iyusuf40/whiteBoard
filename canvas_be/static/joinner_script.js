@@ -222,7 +222,7 @@ function writeWrapper(x, y) {
 function sendMsg(e) {
   e.preventDefault()
   if (!socket) return
-  sendToSocket('delete', -21, 49)
+  sendToSocket('no action', -21, 49)
 }
 
 function setKey() {
