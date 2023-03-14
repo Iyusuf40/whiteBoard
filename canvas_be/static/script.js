@@ -100,11 +100,13 @@ async function handleCanvasCreation(e) {
     alert(`canvas: ${data.name} created`)
     canvasName = data.name
     setupCanvas()
+    buildCanvas()
   } else if (data.error) {
     alert (data.error)
     if (data.error === 'canvas already exists') {
       canvasName = name
       setupCanvas()
+      buildCanvas()
     }
   } else {
     throw new Error('undefined behavior occured')
