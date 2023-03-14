@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DevMeet</title>
+	<style>
+		h1 {
+			font-style: italic;
+			font-family: serif sans-serif monospace;
+			font-size: 50px;
+			text-align: center;
+		}
+
+	</style>
+</head>
+<body>
+	<header><h1>DEVMEET</h1></header>
+	<div>
+		<main>
+			<div class="room create">
+					<a href="/create-room"><button type="submit">Create a Room</button></a>
+			</div>
+			<div class="room join">
+				<form action="/create-room" method="POST">
+					<input type="text" placeholder="Join a Room" name="roomLink" required>
+					<button type="submit">Join</button>
+				</form>
+			</div>
+		</main>
+	</div>
+</body>
+</html>
