@@ -229,7 +229,7 @@ function setupCanvas() {
 
 async function getCanvas(name=null) {
   if (!canvasName) return alert('canvas name not set')
-  const cName = name || canvasName.split(':')[1]
+  const cName = name || canvasName
   if (!key) return alert('key required to get canvas')
   if (!cName) return alert('canvas name required to get canvas')
   const url = baseUrl + `canvas/${key}/${cName}`
