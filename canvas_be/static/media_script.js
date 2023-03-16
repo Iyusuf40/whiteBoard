@@ -1,9 +1,6 @@
 const videoGrid = document.getElementById('video-grid')
 const audioToggle = document.getElementById('myBtn')
-const myPeer = new Peer(undefined, {
-  host: '/',
-  port: '3001',
-})
+const myPeer = new Peer()
 
 let localStream;
 
