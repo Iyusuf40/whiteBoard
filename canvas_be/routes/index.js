@@ -2,6 +2,7 @@ const express = require('express')
 const UsersController = require('../controllers/UsersController')
 const CanvasController = require('../controllers/CanvasController')
 const AppController = require('../controllers/AppController')
+const MediaContoller = require('../controllers/MediaController')
 
 const router = express.Router()
 
@@ -20,5 +21,9 @@ router.get('/canvas/:key/:name', CanvasController.getCanvas)
 router.post('/canvas', CanvasController.createCanvas)
 
 router.get('/join/:key/:canvas', AppController.join)
+
+router.post('/create_media_room', MediaContoller.createMediaRoom)
+
+router.put('/join_media_room', MediaContoller.joinMediaRoom)
 
 module.exports = router
