@@ -102,6 +102,21 @@ class CanvasController {
     return res.send({messgae: 'updated successfully'})
   }
 
+  static async clearPoints(req, res) {
+    if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
+    const key = req.params.key
+    const name = req.body.name
+    if (!name) return res.status(403).send({error: 'canvas name missing'}) 
+    if (!key) return res.status(403).send({error: 'key missing'}) 
+    const canvasName = `${key}:${name}`
+    const canvas = await CanvasController.findCanvas(canvasName)
+    if (!canvas) return res.status(404).send({error: 'canvas Not found'})
+    const filter = {name: canvasName}
+    const resp = await dbClient.updateOne('canvas', filter, `points`, {})
+    if (!resp.modifiedCount) return res.status(500).send({error: 'update failed / canvas was empty'})
+    return res.send({messgae: 'updated successfully'})
+  }
+
   static async getCanvas(req, res) {
     if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
     const key = req.params.key

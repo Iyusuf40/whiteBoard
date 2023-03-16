@@ -5,6 +5,7 @@ const canvasForm = document.getElementById('create--canvas--form')
 const createRoomBtn = document.getElementById('create--wss')
 const sendMsgBtn = document.getElementById('send--msg')
 const modeButtons = document.getElementsByClassName('mode--buttons')
+const clearCanvasBtn = document.getElementById('clear--canvas')
 
 
 let drawOpts = {
@@ -56,6 +57,7 @@ loginForm.addEventListener('submit', handleLoginSubmit)
 canvasForm.addEventListener('submit', handleCanvasCreation)
 createRoomBtn.addEventListener('click', handleCreateWss)
 sendMsgBtn.addEventListener('click', sendMsg)
+clearCanvasBtn.addEventListener('click', sendClearCanvasToBE)
 
 async function handleCreateAcct(e) {
   e.preventDefault()
@@ -110,6 +112,26 @@ async function handleCanvasCreation(e) {
   } else {
     throw new Error('undefined behavior occured')
   } 
+}
+
+async function sendClearCanvasToBE(e) {
+  e.preventDefault()
+  if (!key) return alert('you are not logged in')
+  if (!canvasName) return alert('canvas name not set')
+  const url = baseUrl + `clear_canvas_points/${key}`
+  const body = JSON.stringify({name: canvasName})
+  const data = await putData(url, body)
+  if (!data) return alert('clear canvas failed')
+  if (data.error) return alert(data.error)
+  sendClearCanvasMsgToSocket()
+  clearCanvas()
+}
+
+function clearCanvas() {
+  for (const key in globalElRepo) {
+    const ink = globalElRepo[key]
+    erase(ink, false)
+  }
 }
 
 async function handleCreateWss(e) {
@@ -258,7 +280,7 @@ async function buildCanvas(name=null) {
     const [x, y] = point.split(':')
     // const props = canvas.points[point]
     const ink = write(x, y, false)
-    canvas.appendChild(ink)
+    if (ink) canvas.appendChild(ink)
   })
 }
 
@@ -296,10 +318,12 @@ function handleTouchStart(e) {
 function handleSocketMessage(data) {
   const {action, x, y} = data
   if (!action) return console.log('action missing')
-  if (!x) return console.log('x-axis missing')
-  if (!y) return console.log('y-axis missing')
+  if (!x && x !== 0) return console.log('x-axis missing')
+  if (!y && y !== 0) return console.log('y-axis missing')
   if (action === 'delete') {
     eraseWrapper(x, y)
+  } else if (action === 'clear') {
+    clearCanvas()
   } else {
     writeWrapper(x, y)
   }
@@ -315,10 +339,12 @@ function eraseWrapper(x, y) {
 function writeWrapper(x, y) {
   if (!x || !y) return console.log('required params missing')
   const ink = write(x, y, false)
-  canvas.appendChild(ink)
+  if (ink) canvas.appendChild(ink)
 }
 
 function write(x, y, persist=true, props=null) {
+  const key = `${x}:${y}`
+  if (globalElRepo[key]) return null // do not allow zombie ink
   let ink = document.createElement("span")
   ink.style.left = x
   ink.style.top = y
@@ -332,8 +358,7 @@ function write(x, y, persist=true, props=null) {
   if (props) {
     // add additional properties to ink
   }
-  const key = `${x}:${y}`
-  globalElRepo[key] = ink
+  globalElRepo[key] = ink  
   return ink
 }
 
@@ -488,15 +513,21 @@ function connectTwoPoints(pointsArr, canvas) {
     }
   
     let el = write(`${x1}px`, `${y1}px`)
-    canvas.appendChild(el)
+    if (el) canvas.appendChild(el)
   }
 }
 
 function sendToSocket(action, x, y) {
-  if (!x) return alert('x-axis missing')
-  if (!y) return alert('y-axis missing')
+  if (!x && x !== 0) return alert('x-axis missing')
+  if (!y && y !== 0) return alert('y-axis missing')
   if (!action) return alert('action missing')
   if (!socket) return console.log('no socket set')
   const data = JSON.stringify({action, x, y})
+  socket.send(data)
+}
+
+function sendClearCanvasMsgToSocket() {
+  if (!socket) return console.log('no socket set')
+  const data = JSON.stringify({action: 'clear', x: 0, y: 0})
   socket.send(data)
 }
