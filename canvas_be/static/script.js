@@ -120,9 +120,7 @@ async function sendClearCanvasToBE(e) {
   if (!canvasName) return alert('canvas name not set')
   const url = baseUrl + `clear_canvas_points/${key}`
   const body = JSON.stringify({name: canvasName})
-  const data = await putData(url, body)
-  if (!data) return alert('clear canvas failed')
-  if (data.error) return alert(data.error)
+  putData(url, body)
   sendClearCanvasMsgToSocket()
   clearCanvas()
 }
