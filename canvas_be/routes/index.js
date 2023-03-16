@@ -13,6 +13,8 @@ router.post('/canvas_socket', CanvasController.createSock)
 
 router.put('/canvas_points/:key', CanvasController.updatePoints)
 
+router.put('/clear_canvas_points/:key', CanvasController.clearPoints)
+
 router.get('/canvas/:key/:name', CanvasController.getCanvas)
 
 router.post('/canvas', CanvasController.createCanvas)
