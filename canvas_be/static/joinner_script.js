@@ -2,6 +2,7 @@ const root = document.getElementById('root')
 const sendMsgBtn = document.getElementById('send--msg')
 const modeButtons = document.getElementsByClassName('mode--buttons')
 const clearCanvasBtn = document.getElementById('clear--canvas')
+const startMediaBtn = document.getElementById('start--media')
 
 
 let drawOpts = {
@@ -25,6 +26,12 @@ let socketCreated = false
 let trackClick = false
 let globalPoints = []
 let globalElRepo = {}
+const myPeer = new Peer()
+let admin = false
+let roomCreated = true
+let peerId = null
+
+myPeer.on('open', (id) => peerId = id)
 
 
 const postOpt = {
@@ -49,6 +56,7 @@ const putOpt = {
 
 sendMsgBtn.addEventListener('click', sendMsg)
 clearCanvasBtn.addEventListener('click', sendClearCanvasToBE)
+startMediaBtn.addEventListener('click', handleStartMedia)
 
 setKey()
 setCanvasName()
@@ -84,6 +92,41 @@ async function putData(url, data) {
     console.error(err)
     return null
   })
+}
+
+async function handleStartMedia(e) {
+  e.preventDefault()
+  if (!roomCreated) return alert('room not created')
+  const members = await getRoomMembers()
+  const stream = await userMedia() 
+  for (const memberId of members) {
+    if (memberId != peerId) connectToNewUser(memberId, stream)
+  }
+}
+
+async function getRoomMembers() {
+  if (!key) return alert('room key not set')
+  if (!peerId) return alert('peerId not set, please try again')
+  const members = await joinMediaRoom()
+  return members
+}
+
+async function joinMediaRoom() {
+  if (!key) return alert('you are not logged in')
+  if (!canvasName) return alert('no canvas created')
+  if (!peerId) return alert('please try again, peerId not set')
+
+  const body = JSON.stringify({key, peerId})
+  const url = baseUrl + 'join_media_room'
+  const data = await putData(url, body)
+  if (!data) return alert('undefined behaviour occured during account creation')
+  if (data.peers) {
+    return data.peers
+  } else if (data.error) {
+    alert (data.error)
+  } else {
+    throw new Error('undefined behavior occured')
+  } 
 }
 
 /**
