@@ -232,7 +232,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('wss://collab.cloza.tech/' + key);
+  socket = new WebSocket('wss://collab.cloza.tech/ws' + key);
 
   socketCreated = true
 

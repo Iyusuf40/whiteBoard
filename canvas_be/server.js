@@ -38,8 +38,10 @@ server.on('upgrade', function upgrade(req, socket, head) {
     const parts = path.split('/')
     const key = parts[parts.length - 1]
     const wss = CanvasController.globalSocketsServers[key]
+    console.log(key)
     wss.handleUpgrade(req, socket, head, function done(ws) {
       wss.emit('connection', ws, req);
+      console.log('in handle upgrade')
     });
 
   });
