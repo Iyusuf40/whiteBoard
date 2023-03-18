@@ -12,7 +12,7 @@ class MediaController {
     const user = await UsersController.findUserByKey(key)
     if (!user) return res.status(403).send({error: 'no user found with this key'})
     MediaController.roomsRepo[key] = [peerId]
-    res.status(201).send({staus: 'media room created successfully', key})
+    return res.status(201).send({status: 'media room created successfully', key})
   }
 
   static async joinMediaRoom(req, res) {

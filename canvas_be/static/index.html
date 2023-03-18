@@ -56,6 +56,9 @@
             <div class="create--wss">
                 <input type="button" value="clear canvas" id="clear--canvas">
             </div>
+            <div class="create--wss">
+                <input type="button" value="start media" id="start--media">
+            </div>
             <div id="share--url"></div>
             <div class="mode--container">
                 <span class="mode--buttons" data-mode="erase">erase</span>
@@ -64,6 +67,13 @@
         </div>
         <div id="root"></div>
       </div>
+      <div id="media">
+      <div id="video-grid"></div>
+        <button id="myBtn">Toggle Audio</button>
+        <button id="myBtn-v">Toggle Video</button>
+      </div>
+      <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
       <script src="/script.js"></script>
+      <script src="/media_script.js"></script>
   </body>
 </html>
