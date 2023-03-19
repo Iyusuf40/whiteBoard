@@ -631,3 +631,12 @@ function sendClearCanvasMsgToSocket() {
   const data = JSON.stringify({action: 'clear', x: 0, y: 0})
   socket.send(data)
 }
+
+function computeDistance(p1, p2) {
+  if (p1 < 0 && p2 < 0) return abs(p1 + p2)
+  if (p1 < 0 && p2 >= 0) return abs(p1 - p2)
+  if (p1 >= 0 && p2 < 0) return abs(p2 - p1)
+  if (p1 >= 0 && p2 >= 0) return abs(p1 - p2)
+  return p1 - p2
+}
+
