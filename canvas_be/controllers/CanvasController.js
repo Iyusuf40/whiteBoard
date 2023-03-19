@@ -59,7 +59,7 @@ class CanvasController {
         }
       })
       
-      ws.on('close', () => {
+      ws.on('close', async () => {
         console.log('closing socket with id', ws.id)
         const id = ws.id
         const peerId = CanvasController.wsToPeerIdMap[id]
