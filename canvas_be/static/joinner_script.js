@@ -100,7 +100,7 @@ async function handleStartMedia(e) {
   const members = await getRoomMembers()
   const stream = await userMedia() 
   for (const memberId of members) {
-    if (memberId != peerId) connectToNewUser(memberId, stream)
+    if (memberId !== peerId) connectToNewUser(memberId, stream)
   }
 }
 

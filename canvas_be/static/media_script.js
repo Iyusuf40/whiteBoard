@@ -17,7 +17,6 @@ async function userMedia() {
 			addVideoStream(myVideo, stream, undefined);
 			answerCall(stream);
             return stream
-			// userStatus(stream);
 		}).catch((err) => {
 			console.log(err);
 		})
@@ -40,8 +39,9 @@ function addVideoStream(video, stream, call) {
 		video.play();
 	})
 	videoGrid.append(video);
-	if (call !== undefined) {
+	if (call) {
 		call.on('close', () => {
+            console.log('close event called')
 			video.remove();
 		});
 	}
