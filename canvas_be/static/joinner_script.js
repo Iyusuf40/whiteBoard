@@ -21,7 +21,7 @@ let canvas = null
 let key = null
 let canvasName = null
 let socket = null
-const baseUrl = 'https://collab.cloza.tech/'
+const baseUrl = 'http://localhost:3000/'
 let socketCreated = false
 let trackClick = false
 let globalPoints = []
@@ -238,7 +238,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('wss://collab.cloza.tech/ws/' + key);
+  socket = new WebSocket('ws://localhost:3000/' + key);
 
   socketCreated = true
 
@@ -517,7 +517,7 @@ function connectTwoPoints(pointsArr, canvas) {
       }
     }
     let el = write(`${x1}px`, `${y1}px`)
-    canvas.appendChild(el)
+    if (el) canvas.appendChild(el)
   }
 }
 
