@@ -30,10 +30,14 @@ const baseUrl = 'http://localhost:3000/'
 let trackClick = false
 let globalPoints = []
 let globalElRepo = {}
-const myPeer = new Peer()
+const myPeer = new Peer(undefined, {
+  host: '/',
+  port: '3001',
+}) //Temporary changes
 let admin = false
 let roomCreated = false
 let peerId = null
+let peers = {}
 
 myPeer.on('open', (id) => peerId = id)
 
@@ -80,7 +84,7 @@ async function handleCreateAcct(e) {
     alert (data.error)
   } else {
     throw new Error('undefined behavior occured')
-  } 
+  }
 }
 
 async function handleLoginSubmit(e) {
@@ -119,7 +123,7 @@ async function handleCanvasCreation(e) {
     }
   } else {
     throw new Error('undefined behavior occured')
-  } 
+  }
 }
 
 async function sendClearCanvasToBE(e) {
@@ -159,14 +163,14 @@ async function handleCreateWss(e) {
     alert (data.error)
   } else {
     throw new Error('undefined behavior occured')
-  } 
+  }
 }
 
 async function handleStartMedia(e) {
   e.preventDefault()
   if (!roomCreated) return alert('room not created')
   const members = await getRoomMembers()
-  const stream = await userMedia() 
+  const stream = await userMedia()
   for (const memberId of members) {
     if (memberId != peerId) connectToNewUser(memberId, stream)
   }
@@ -194,7 +198,7 @@ async function joinMediaRoom() {
     alert (data.error)
   } else {
     throw new Error('undefined behavior occured')
-  } 
+  }
 }
 
 async function createMediaRoom() {
@@ -208,12 +212,13 @@ async function createMediaRoom() {
   if (!data) return alert('undefined behaviour occured during account creation')
   if (data.status) {
     console.log(`${data.status}`)
+    // emit peerId
     return true
   } else if (data.error) {
     alert (data.error)
   } else {
     throw new Error('undefined behavior occured')
-  } 
+  }
 }
 
 async function postData(url, data) {
@@ -290,10 +295,10 @@ function setSharedUrl(key) {
 }
 
 /**
- * 
- * 
+ *
+ *
  * canvas functions from here bellow
- * 
+ *
  */
 
 function setupCanvas() {
@@ -422,7 +427,7 @@ function write(x, y, persist=true, props=null) {
   if (props) {
     // add additional properties to ink
   }
-  globalElRepo[key] = ink  
+  globalElRepo[key] = ink
   return ink
 }
 
@@ -461,12 +466,12 @@ function handleMouseMoveErase(e) {
     const data = e.target.getAttribute('data-pos')
     if(data) {
       /**
-       * 
+       *
        * clientX and Y pos is necessary because in erasemult
        * elements will be retrieved by using document.getElFromPos
        * which uses view port positions
-       * 
-       * 
+       *
+       *
        */
       const _data = `${e.clientX}:${e.clientY}`
       eraseMultiple(_data)
@@ -528,14 +533,14 @@ function eraseMultiple(position) {
   const [x, y] = position.split(':')
 
   /**
-   * 
+   *
    * usage of Math.floor here is essential for performance.
-   * operations on floatin point numbers used crazy memory 
+   * operations on floatin point numbers used crazy memory
    * and was super slow
-   * 
+   *
    */
   const surroundingInk = getSurroundingInk(Math.floor(x), Math.floor(y))
-  
+
   surroundingInk.forEach(function(coordinate) {
     const el = document.elementFromPoint(coordinate[0], coordinate[1])
     if (el && el.getAttribute('data-pos')) {
@@ -567,7 +572,7 @@ function connectTwoPoints(pointsArr, canvas) {
     } else {
       x1++
     }
-  
+
     if (y1 === y2) {
       y1 = y1
     } else if (y1 > y2) {
@@ -575,7 +580,7 @@ function connectTwoPoints(pointsArr, canvas) {
     } else {
       y1++
     }
-  
+
     let el = write(`${x1}px`, `${y1}px`)
     if (el) canvas.appendChild(el)
   }

@@ -1,6 +1,5 @@
 const videoGrid = document.getElementById('video-grid')
-const audioToggle = document.getElementById('myBtn')
-
+let ucall = undefined;
 let localStream;
 
 const myVideo = document.createElement('video')
@@ -41,9 +40,16 @@ function addVideoStream(video, stream, call) {
 	})
 	videoGrid.append(video);
 	if (call !== undefined) {
+		peers[call.peer] = video;
+		console.log('Adding close event to video');
 		call.on('close', () => {
+			console.log('Event fired');
 			video.remove();
 		});
+		call.on('error', () => {
+			console.log('Error event fired');
+			video.remove();
+		})
 	}
 }
 
