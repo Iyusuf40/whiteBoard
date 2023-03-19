@@ -475,37 +475,49 @@ function eraseMultiple(position) {
 function connectTwoPoints(pointsArr, canvas) {
   let x1 = pointsArr[0][0]
   let x2 = pointsArr[1][0]
-  let xDiff = abs(x1) - abs(x2)
   let y1 = pointsArr[0][1]
   let y2 = pointsArr[1][1]
-  let yDiff = abs(y1) - abs(y2)
 
-  let longest = null
-  if (abs(xDiff) >= abs(yDiff)) {
-    longest = abs(xDiff)
+  let longest = 0
+  let xDiff = computeDistance(x1, x2)
+  let yDiff = computeDistance(y1, y2)
+  let xFactor
+  let yFactor
+  if (xDiff > yDiff) {
+    longest = xDiff
   } else {
-    longest = abs(yDiff)
+    longest = yDiff
   }
-
-  for (let i = 0; i < longest; i++) {
-    if (x1 === x2) {
+  
+  xFactor = xDiff / longest
+  yFactor = yDiff / longest
+  
+  let drawInterval = xFactor !== 1 ? 
+                     Math.ceil((longest - xDiff) / xDiff) :
+                     Math.ceil((longest - yDiff) / yDiff)
+  
+  for (let i = 1; i <= longest + 1; i++) {
+    if (xFactor !== 1 && i % drawInterval) {
       x1 = x1
-    } else if (x1 > x2) {
-      x1--
     } else {
-      x1++
+      if (x1 > x2) {
+        x1--
+      } else if(x1 < x2) {
+        x1++
+      }
     }
-
-    if (y1 === y2) {
+  
+    if (yFactor !== 1 && i % drawInterval) {
       y1 = y1
-    } else if (y1 > y2) {
-      y1--
     } else {
-      y1++
+      if (y1 > y2) {
+        y1--
+      } else if(y1 < y2) {
+        y1++
+      }
     }
-
     let el = write(`${x1}px`, `${y1}px`)
-    if (el) canvas.appendChild(el)
+    canvas.appendChild(el)
   }
 }
 
