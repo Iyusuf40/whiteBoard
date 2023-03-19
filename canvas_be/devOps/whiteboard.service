@@ -1,0 +1,15 @@
+[Unit]
+Description=server.js - A whiteboard app for developers
+After=network.target
+
+[Service]
+WorkingDirectory=/home/ubuntu/whiteBoard/canvas_be
+ExecStart=/usr/bin/node server.js
+Type=simple
+User=ubuntu
+Group=ubuntu
+Environment=NODE_PORT=3000
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

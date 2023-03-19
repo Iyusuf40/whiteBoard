@@ -26,13 +26,14 @@ let key = null
 let socket = null
 let canvasName = null
 let canvas = null
-const baseUrl = 'http://localhost:3000/'
+const baseUrl = 'https://collab.cloza.tech/'
 let trackClick = false
 let globalPoints = []
 let globalElRepo = {}
 const myPeer = new Peer()
 let admin = false
 let roomCreated = false
+let startMedia = false
 let peerId = null
 let peers = {}
 
@@ -164,14 +165,17 @@ async function handleCreateWss(e) {
 }
 
 async function handleStartMedia(e) {
-  e.preventDefault()
-  if (!roomCreated) return alert('room not created')
-  const members = await getRoomMembers()
-  const stream = await userMedia()
-  sendToSocket('peer-connect', 0, 0, JSON.stringify({peerId, action: 'bind peerId to ws'}))
-  for (const memberId of members) {
-    if (memberId !== peerId) connectToNewUser(memberId, stream)
-  }
+  if (startMedia == false) {
+    e.preventDefault()
+    if (!roomCreated) return alert('room not created')
+    const members = await getRoomMembers()
+    const stream = await userMedia()
+    sendToSocket('peer-connect', 0, 0, JSON.stringify({peerId, action: 'bind peerId to ws'}))
+    for (const memberId of members) {
+      if (memberId !== peerId) connectToNewUser(memberId, stream)
+    }
+    startMedia = true;
+  } else console.log('Already connected')
 }
 
 async function getRoomMembers() {
@@ -255,7 +259,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('ws://localhost:3000/' + key);
+  socket = new WebSocket('wss://collab.cloza.tech/ws/' + key);
 
   socketCreated = true
 
