@@ -1,6 +1,5 @@
 const videoGrid = document.getElementById('video-grid')
-const audioToggle = document.getElementById('myBtn')
-
+let ucall = undefined;
 let localStream;
 
 const myVideo = document.createElement('video')
@@ -17,7 +16,6 @@ async function userMedia() {
 			addVideoStream(myVideo, stream, undefined);
 			answerCall(stream);
             return stream
-			// userStatus(stream);
 		}).catch((err) => {
 			console.log(err);
 		})
@@ -41,6 +39,7 @@ function addVideoStream(video, stream, call) {
 	})
 	videoGrid.append(video);
 	if (call !== undefined) {
+		peers[call.peer] = video;
 		call.on('close', () => {
 			video.remove();
 		});
