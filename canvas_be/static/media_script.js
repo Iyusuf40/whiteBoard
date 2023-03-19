@@ -1,5 +1,4 @@
 const videoGrid = document.getElementById('video-grid')
-let ucall = undefined;
 let localStream;
 
 const myVideo = document.createElement('video')
