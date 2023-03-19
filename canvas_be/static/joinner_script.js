@@ -29,6 +29,7 @@ let globalElRepo = {}
 const myPeer = new Peer()
 let admin = false
 let roomCreated = true
+let startMedia = false
 let peerId = null
 let peers = {}
 
@@ -96,14 +97,17 @@ async function putData(url, data) {
 }
 
 async function handleStartMedia(e) {
-  e.preventDefault()
-  if (!roomCreated) return alert('room not created')
-  const members = await getRoomMembers()
-  const stream = await userMedia()
-  sendToSocket('peer-connect', 0, 0, JSON.stringify({peerId, action: 'bind peerId to ws'}))
-  for (const memberId of members) {
-    if (memberId !== peerId) connectToNewUser(memberId, stream)
-  }
+  if (startMedia == false) {
+    e.preventDefault()
+    if (!roomCreated) return alert('room not created')
+    const members = await getRoomMembers()
+    const stream = await userMedia()
+    sendToSocket('peer-connect', 0, 0, JSON.stringify({peerId, action: 'bind peerId to ws'}))
+    for (const memberId of members) {
+      if (memberId !== peerId) connectToNewUser(memberId, stream)
+    }
+    startMedia = true;
+  } else console.log('Already connected')
 }
 
 async function getRoomMembers() {
