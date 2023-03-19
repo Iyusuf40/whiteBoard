@@ -30,10 +30,7 @@ const baseUrl = 'http://localhost:3000/'
 let trackClick = false
 let globalPoints = []
 let globalElRepo = {}
-const myPeer = new Peer(undefined, {
-  host: '/',
-  port: '3001',
-}) //Temporary changes
+const myPeer = new Peer()
 let admin = false
 let roomCreated = false
 let peerId = null
@@ -171,6 +168,7 @@ async function handleStartMedia(e) {
   if (!roomCreated) return alert('room not created')
   const members = await getRoomMembers()
   const stream = await userMedia()
+  sendToSocket('peer-connect', 0, 0, JSON.stringify({peerId, action: 'bind peerId to ws'}))
   for (const memberId of members) {
     if (memberId !== peerId) connectToNewUser(memberId, stream)
   }
@@ -598,13 +596,18 @@ function connectTwoPoints(pointsArr, canvas) {
   }
 }
 
-function sendToSocket(action, x, y) {
+function sendToSocket(action, x, y, other) {
   if (!x && x !== 0) return alert('x-axis missing')
   if (!y && y !== 0) return alert('y-axis missing')
   if (!action) return alert('action missing')
   if (!socket) return console.log('no socket set')
-  const data = JSON.stringify({action, x, y})
-  socket.send(data)
+  if (action === 'peer-connect') {
+    if (typeof(other) !== 'string') return alert('Only JSON allowed')
+    socket.send(other)
+  } else {
+    const data = JSON.stringify({action, x, y})
+    socket.send(data)
+  }
 }
 
 function sendClearCanvasMsgToSocket() {

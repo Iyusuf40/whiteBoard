@@ -1,11 +1,14 @@
 const dbClient = require('../utils/dbClient')
 const UsersController = require('./UsersController')
+const MediaController = require('./MediaController')
 const WebSocketServer = require('ws').WebSocketServer
 const WebSocket = require('ws').WebSocket
+const v4 = require('uuid').v4
 
 class CanvasController {
 
   static globalSocketsServers = {}
+  static wsToPeerIdMap = {}
 
   static async createSock(req, res) {
     if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
@@ -38,22 +41,35 @@ class CanvasController {
       const path = req.url
       const parts = path.split('/')
       const key = parts[parts.length - 1]
+      ws.id = v4()  //  assign an id to the bound socket
       ws.on('error', console.error)
       ws.on('message', (data) => {
         const recvd = data.toString('utf8')
         const payload = JSON.parse(recvd)
         const currWss = CanvasController.globalSocketsServers[key]
         // the above code is unnecessary because currWss === wss
-        currWss.clients.forEach(function each(client) {
-          if (ws !== client) {
-            client.send(recvd);
-          }
-        });
-        // console.log(recvd)
+        if (payload.action === 'bind peerId to ws') {
+          CanvasController.wsToPeerIdMap[ws.id] = payload.peerId
+        } else {  // broadcast
+          currWss.clients.forEach(function each(client) {
+            if (ws !== client) {
+              client.send(recvd);
+            }
+          });
+        }
       })
       
       ws.on('close', () => {
-        console.log('closing...')
+        console.log('closing socket with id', ws.id)
+        const id = ws.id
+        const peerId = CanvasController.wsToPeerIdMap[id]
+        MediaController.removeFromRoom(key, peerId)
+        const message = JSON.stringify({peerId, action: 'peer-disconnect', x: 0, y: 0})
+        wss.clients.forEach(function each(client) {
+          if (ws !== client) {
+            client.send(message);
+          }
+        });
         ws.close()
       })
       
