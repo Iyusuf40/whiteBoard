@@ -517,7 +517,7 @@ function connectTwoPoints(pointsArr, canvas) {
       }
     }
     let el = write(`${x1}px`, `${y1}px`)
-    canvas.appendChild(el)
+    if (el) canvas.appendChild(el)
   }
 }
 
