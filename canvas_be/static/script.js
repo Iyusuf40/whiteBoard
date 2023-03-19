@@ -385,7 +385,7 @@ function handleTouchStart(e) {
 }
 
 function handleSocketMessage(data) {
-  const {action, x, y} = data
+  const { action, x, y, peerId } = data
   if (!action) return console.log('action missing')
   if (!x && x !== 0) return console.log('x-axis missing')
   if (!y && y !== 0) return console.log('y-axis missing')
@@ -393,8 +393,20 @@ function handleSocketMessage(data) {
     eraseWrapper(x, y)
   } else if (action === 'clear') {
     clearCanvas()
+  } else if (action === 'peer-disconnect'){
+    removePeerVideo(peerId)
   } else {
     writeWrapper(x, y)
+  }
+}
+
+function removePeerVideo(peerId) {
+  if (peerId) {
+    const video = peers[peerId]
+    video.remove()
+    delete peers[peerId]
+  } else {
+    console.log('Unknown peer')
   }
 }
 
