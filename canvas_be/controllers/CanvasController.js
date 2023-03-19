@@ -63,7 +63,7 @@ class CanvasController {
         console.log('closing socket with id', ws.id)
         const id = ws.id
         const peerId = CanvasController.wsToPeerIdMap[id]
-        MediaController.removeFromRoom(key, peerId)
+        await MediaController.removeFromRoom(key, peerId)
         const message = JSON.stringify({peerId, action: 'peer-disconnect', x: 0, y: 0})
         wss.clients.forEach(function each(client) {
           if (ws !== client) {
