@@ -313,6 +313,7 @@ function setupCanvas() {
 
   canvas.addEventListener("mouseup", handleMouseUp);
   canvas.addEventListener("touchend", handleMouseUp);
+  canvas.addEventListener("mouseleave", handleMouseUp);
 
   canvas.addEventListener("mousemove", handleMouseMoveDraw);
   canvas.addEventListener("touchmove", handleTouchMoveDraw);
