@@ -27,8 +27,12 @@ function setupMetadata(stream) {
     localStream = stream
 	stream.getAudioTracks()[0].enabled = false;
 	stream.getVideoTracks()[0].enabled = false;
-	document.getElementById('myBtn').addEventListener("click", ToggleAudio)
-	document.getElementById('myBtn-v').addEventListener("click", ToggleVideo)
+	const toggleAudioBtn = document.getElementById('myBtn')
+	const toggleVideoBtn = document.getElementById('myBtn-v')
+	toggleAudioBtn.addEventListener("click", ToggleAudio)
+	toggleVideoBtn.addEventListener("click", ToggleVideo)
+	toggleAudioBtn.style.display = 'inline'
+	toggleVideoBtn.style.display = 'inline'
 };
 
 function addVideoStream(video, stream, call) {
