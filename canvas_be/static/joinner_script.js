@@ -21,7 +21,7 @@ let canvas = null
 let key = null
 let canvasName = null
 let socket = null
-const baseUrl = 'http://localhost:3000/'
+const baseUrl = 'https://collab.cloza.tech/'
 let socketCreated = false
 let trackClick = false
 let globalPoints = []
@@ -233,7 +233,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('ws://localhost:3000/' + key);
+  socket = new WebSocket('wss://collab.cloza.tech/ws/' + key);
 
   socketCreated = true
 
