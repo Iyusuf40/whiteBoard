@@ -64,7 +64,7 @@ class CanvasController {
         const id = ws.id
         const peerId = CanvasController.wsToPeerIdMap[id]
         await MediaController.removeFromRoom(key, peerId)
-        const message = JSON.stringify({peerId, action: 'peer-disconnect', x: 0, y: 0})
+        const message = JSON.stringify({peerId, action: 'peer-disconnect'})
         wss.clients.forEach(function each(client) {
           if (ws !== client) {
             client.send(message);
@@ -95,26 +95,35 @@ class CanvasController {
     if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
     const key = req.params.key
     const name = req.body.name
-    const point = req.body.point
+    const payload = req.body.payload
     if (!name) return res.status(403).send({error: 'canvas name missing'}) 
     if (!key) return res.status(403).send({error: 'key missing'}) 
-    if (!point) return res.status(403).send({error: 'point missing'}) 
-    const x = point.x
-    const y = point.y
-    const action = req.body.action
-    if (!action) return res.status(403).send({error: 'action missing'}) 
+    if (!payload || !payload.length) return res.status(403).send({error: 'pointsList missing'}) 
     const canvasName = `${key}:${name}`
     const canvas = await CanvasController.findCanvas(canvasName)
     if (!canvas) return res.status(404).send({error: 'canvas Not found'})
-    if (action == 'delete') {
-      const filter = {name: canvasName}
-      const r = await dbClient.deletePoint('canvas', filter, `points.${x}:${y}`, {})
-      if (!r.modifiedCount) return res.status(500).send({error: 'update failed'})
-      return res.send({messgae: 'updated successfully'})
-    }
     const filter = {name: canvasName}
-    const resp = await dbClient.updateOne('canvas', filter, `points.${x}:${y}`, point)
-    if (!resp.modifiedCount) return res.status(500).send({error: 'update failed'})
+    /**
+     * TODO: handle update in a separate job process
+     * 
+     * Wasting precious cpu cycles
+     */
+    payload.forEach(async (change) => {
+
+      const point = change.point
+      const x = point.x
+      const y = point.y
+      const action = change.action
+      if (!action) return res.status(403).send({error: 'action missing'}) 
+      if (action == 'delete') {
+        const r = dbClient.deletePoint('canvas', filter, `points.${x}:${y}`, {})
+        // if (!r.modifiedCount) return res.status(500).send({error: 'update failed'})
+      } else {
+        const resp = dbClient.updateOne('canvas', filter, `points.${x}:${y}`, point)
+        // if (!resp.modifiedCount) return res.status(500).send({error: 'update failed'})
+      }
+
+    })
     return res.send({messgae: 'updated successfully'})
   }
 
