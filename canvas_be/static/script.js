@@ -29,6 +29,7 @@ let canvas = null
 const baseUrl = 'http://localhost:3000/'
 let trackClick = false
 let globalPoints = []
+let pointsBuffer = []
 let globalElRepo = {}
 const myPeer = new Peer()
 let admin = false
@@ -170,7 +171,7 @@ async function handleStartMedia(e) {
     if (!roomCreated) return alert('room not created')
     const members = await getRoomMembers()
     const stream = await userMedia()
-    sendToSocket('peer-connect', 0, 0, JSON.stringify({peerId, action: 'bind peerId to ws'}))
+    sendToSocket('bind peerId to ws', {peerId})
     for (const memberId of members) {
       if (memberId !== peerId) connectToNewUser(memberId, stream)
     }
@@ -286,7 +287,7 @@ function createSocket() {
 function sendMsg(e) {
   e.preventDefault()
   if (!socket) return
-  sendToSocket('no action', 12, -7)
+  sendToSocket('no action', {})
 }
 
 function setSharedUrl(key) {
@@ -355,27 +356,26 @@ async function buildCanvas(name=null) {
   })
 }
 
-async function updateCanvasBE(action, x, y) {
+async function updateCanvasBE(payload) {
   /**
-   * action
-   * key
-   * name
-   * point = {x, y}
+   * payload: a list of changes to apply in backend
    */
-
-  if (!action) return alert('action missing')
   if (!key) return alert('you are not logged in')
   if (!canvasName) return alert('no canvas chosen')
-  if (!x || !y) return alert('coordinates missing')
+  if (!payload.length) return console.log('payload empty')
   const url = baseUrl + `canvas_points/${key}`
-  const payload = JSON.stringify({action, point: {x, y}, key, name: canvasName})
-  const res = await putData(url, payload)
+  const changes = JSON.stringify({payload, key, name: canvasName})
+  const res = await putData(url, changes)
   return res
 }
 
 function handleMouseUp(e) {
   trackClick = false
   globalPoints.splice(0, 1)
+  if (!pointsBuffer.length) return
+  updateCanvasBE(pointsBuffer)
+  sendToSocket(pointsBuffer[0].action, {pointsList: pointsBuffer})
+  pointsBuffer = []
 }
 
 function handleMouseDown(e) {
@@ -387,18 +387,16 @@ function handleTouchStart(e) {
 }
 
 function handleSocketMessage(data) {
-  const { action, x, y, peerId } = data
+  const { action, pointsList, peerId } = data
   if (!action) return console.log('action missing')
-  if (!x && x !== 0) return console.log('x-axis missing')
-  if (!y && y !== 0) return console.log('y-axis missing')
   if (action === 'delete') {
-    eraseWrapper(x, y)
+    eraseWrapper(pointsList)
   } else if (action === 'clear') {
     clearCanvas()
   } else if (action === 'peer-disconnect'){
     removePeerVideo(peerId)
   } else {
-    writeWrapper(x, y)
+    writeWrapper(pointsList)
   }
 }
 
@@ -412,17 +410,26 @@ function removePeerVideo(peerId) {
   }
 }
 
-function eraseWrapper(x, y) {
-  if (!x || !y) return console.log('required params missing')
-  const key = `${x}:${y}`
-  const el = globalElRepo[key]
-  erase(el, false)
+function eraseWrapper(pointsList) {
+  if (!pointsList || !pointsList.length) return console.log('pointsList is either missing or empty')
+  pointsList.forEach((change) => {
+    const {action, point} = change
+    if (action !== 'delete') return
+    const key = `${point.x}:${point.y}`
+    const el = globalElRepo[key]
+    erase(el, false)
+  })
 }
 
-function writeWrapper(x, y) {
-  if (!x || !y) return console.log('required params missing')
-  const ink = write(x, y, false)
-  if (ink) canvas.appendChild(ink)
+function writeWrapper(pointsList) {
+  if (!pointsList || !pointsList.length) return console.log('pointsList is either missing or empty')
+  pointsList.forEach((change) => {
+    const {action, point} = change
+    if (action !== 'write') return
+    const {x, y} = point
+    const ink = write(x, y, false)
+    if (ink) canvas.appendChild(ink)
+  })
 }
 
 function write(x, y, persist=true, props=null) {
@@ -434,9 +441,8 @@ function write(x, y, persist=true, props=null) {
   ink.addEventListener('mousemove', handleMouseMoveErase)
   ink.setAttribute('data-pos', `${x}:${y}`)
   if (persist) {
-    // call updateCanvasBE
-    updateCanvasBE('write', x, y)
-    sendToSocket('write', x, y)
+    const changeUnit = {action: 'write', point: {x, y}}
+    pointsBuffer.push(changeUnit)
   }
   if (props) {
     // add additional properties to ink
@@ -453,8 +459,8 @@ function erase(e, persist=true) {
   e.remove()
   delete(globalElRepo[key])
   if (persist) {
-    updateCanvasBE('delete', x, y)
-    sendToSocket('delete', x, y)
+    const changeUnit = {action: 'delete', point: {x, y}}
+    pointsBuffer.push(changeUnit)
   }
 }
 
@@ -612,23 +618,17 @@ function connectTwoPoints(pointsArr, canvas) {
   }
 }
 
-function sendToSocket(action, x, y, other) {
-  if (!x && x !== 0) return alert('x-axis missing')
-  if (!y && y !== 0) return alert('y-axis missing')
-  if (!action) return alert('action missing')
+function sendToSocket(action, payload) {
+  if (!action) return console.log('action not specified')
   if (!socket) return console.log('no socket set')
-  if (action === 'peer-connect') {
-    if (typeof(other) !== 'string') return alert('Only JSON allowed')
-    socket.send(other)
-  } else {
-    const data = JSON.stringify({action, x, y})
-    socket.send(data)
-  }
+  if (!Object.keys(payload).length) return console.log('payload empty')
+  const data = JSON.stringify({...payload, action})
+  socket.send(data)
 }
 
 function sendClearCanvasMsgToSocket() {
   if (!socket) return console.log('no socket set')
-  const data = JSON.stringify({action: 'clear', x: 0, y: 0})
+  const data = JSON.stringify({action: 'clear'})
   socket.send(data)
 }
 
