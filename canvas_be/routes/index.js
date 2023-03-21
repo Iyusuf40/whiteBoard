@@ -22,6 +22,8 @@ router.post('/canvas', CanvasController.createCanvas)
 
 router.get('/join/:key/:canvas', AppController.join)
 
+router.get('/enter/:key', AppController.enter)
+
 router.post('/create_media_room', MediaController.createMediaRoom)
 
 router.put('/join_media_room', MediaController.joinMediaRoom)

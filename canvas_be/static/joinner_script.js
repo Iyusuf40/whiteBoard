@@ -1,5 +1,4 @@
 const root = document.getElementById('root')
-const sendMsgBtn = document.getElementById('send--msg')
 const modeButtons = document.getElementsByClassName('mode--buttons')
 const clearCanvasBtn = document.getElementById('clear--canvas')
 const startMediaBtn = document.getElementById('start--media')
@@ -57,7 +56,6 @@ const putOpt = {
   // body: REMEMBER TO USE SPREAD SYNTAX TO INCLUDE BODY
 }
 
-sendMsgBtn.addEventListener('click', sendMsg)
 clearCanvasBtn.addEventListener('click', sendClearCanvasToBE)
 startMediaBtn.addEventListener('click', handleStartMedia)
 

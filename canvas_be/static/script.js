@@ -1,9 +1,6 @@
 const root = document.getElementById('root')
-const createAccountForm = document.getElementById('create--act--form')
-const loginForm = document.getElementById('login--form')
 const canvasForm = document.getElementById('create--canvas--form')
 const createRoomBtn = document.getElementById('create--wss')
-const sendMsgBtn = document.getElementById('send--msg')
 const modeButtons = document.getElementsByClassName('mode--buttons')
 const clearCanvasBtn = document.getElementById('clear--canvas')
 const startMediaBtn = document.getElementById('start--media')
@@ -62,11 +59,8 @@ const putOpt = {
 
 let socketCreated = false
 
-createAccountForm.addEventListener('submit', handleCreateAcct)
-loginForm.addEventListener('submit', handleLoginSubmit)
 canvasForm.addEventListener('submit', handleCanvasCreation)
 createRoomBtn.addEventListener('click', handleCreateWss)
-sendMsgBtn.addEventListener('click', sendMsg)
 clearCanvasBtn.addEventListener('click', sendClearCanvasToBE)
 startMediaBtn.addEventListener('click', handleStartMedia)
 
@@ -85,6 +79,14 @@ async function handleCreateAcct(e) {
     throw new Error('undefined behavior occured')
   }
 }
+
+function setKey() {
+  const keyEl = document.getElementById('key')
+  key = keyEl.innerText
+  if (!key) alert('key failed to set')
+}
+
+setKey()
 
 async function handleLoginSubmit(e) {
   e.preventDefault()
