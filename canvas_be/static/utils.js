@@ -1,50 +1,24 @@
-const root = document.getElementById('root')
-const canvasForm = document.getElementById('create--canvas--form')
-const createRoomBtn = document.getElementById('create--wss')
-const modeButtons = document.getElementsByClassName('mode--buttons')
-const clearCanvasBtn = document.getElementById('clear--canvas')
-const startMediaBtn = document.getElementById('start--media')
-
-
-let drawOpts = {
-  mode: ''
+const postOpt = {
+  method: "POST",
+  mode: "cors",
+  cache: "no-cache",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  // body: REMEMBER TO USE SPREAD SYNTAX TO INCLUDE BODY
 }
 
-Array.from(modeButtons).forEach(function(el) {
-  el.addEventListener('click', setMode)
-})
-
-function setMode(e) {
-  drawOpts.mode = e.target.getAttribute('data-mode')
+const putOpt = {
+  method: "PUT",
+  mode: "cors",
+  cache: "no-cache",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  // body: REMEMBER TO USE SPREAD SYNTAX TO INCLUDE BODY
 }
 
 
-let key = null
-let socket = null
-let canvasName = null
-let canvas = null
-const baseUrl = 'https://collab.cloza.tech/'
-let trackClick = false
-let globalPoints = []
-let pointsBuffer = []
-let globalElRepo = {}
-const myPeer = new Peer()
-let admin = false
-let roomCreated = false
-let startMedia = false
-let peerId = null
-let peers = {}
-
-myPeer.on('open', (id) => peerId = id)
-
-let socketCreated = false
-
-canvasForm.addEventListener('submit', handleCanvasCreation)
-createRoomBtn.addEventListener('click', handleCreateWss)
-clearCanvasBtn.addEventListener('click', sendClearCanvasToBE)
-startMediaBtn.addEventListener('click', handleStartMedia)
-
-<<<<<<< HEAD
 async function handleCreateAcct(e) {
   e.preventDefault()
   const id = document.getElementById('create--act--id').value
@@ -59,6 +33,12 @@ async function handleCreateAcct(e) {
   } else {
     throw new Error('undefined behavior occured')
   }
+}
+
+function setKey() {
+  const keyEl = document.getElementById('key')
+  key = keyEl.innerText
+  if (!key) alert('key failed to set')
 }
 
 async function handleLoginSubmit(e) {
@@ -235,7 +215,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('wss://collab.cloza.tech/ws/' + key);
+  socket = new WebSocket('ws://localhost:3000/' + key);
 
   socketCreated = true
 
@@ -616,6 +596,3 @@ function computeDistance(p1, p2) {
   return p1 - p2
 }
 
-=======
-setKey()
->>>>>>> landing
