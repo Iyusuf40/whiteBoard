@@ -7,7 +7,7 @@ const removeFormBtns = document.getElementsByClassName('remove--form')
 
 
 let key = null
-const baseUrl = 'http://localhost:3000/'
+const baseUrl = 'https://collab.cloza.tech/'
 
 const postOpt = {
   method: "POST",

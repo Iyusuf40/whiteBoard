@@ -456,6 +456,7 @@ function handleMouseMoveErase(e) {
 }
 
 function handleTouchMoveDraw(e) {
+  e.preventDefault()
   if (!trackClick) {
     return
   }
@@ -470,7 +471,7 @@ function handleTouchMoveDraw(e) {
 }
 
 function handleTouchMoveErase(e) {
-
+  e.preventDefault()
   if (drawOpts.mode === 'erase') {
     const loc = e.changedTouches[0]
     const x = Math.floor(loc.clientX)
