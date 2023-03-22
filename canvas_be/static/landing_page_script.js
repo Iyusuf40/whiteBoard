@@ -52,6 +52,8 @@ async function handleCreateAcct(e) {
   if (!data) return alert('undefined behaviour occured during account creation')
   if (data.key) {
     key = data.key
+    alert('account create success')
+    hideActForm()
   } else if (data.error) {
     alert (data.error)
   } else {
@@ -69,6 +71,7 @@ async function handleLoginSubmit(e) {
   if (data.key) {
     key = data.key
     alert('login successful')
+    hideLoginForm()
   } else if (data.error) {
     alert (data.error)
   } else {
