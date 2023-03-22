@@ -18,6 +18,18 @@ const putOpt = {
   // body: REMEMBER TO USE SPREAD SYNTAX TO INCLUDE BODY
 }
 
+function setMode(e) {
+  const el = e.target
+  const mode = el.getAttribute('data-mode')
+  drawOpts.mode = mode
+  if (mode === 'erase') {
+    setClass(el, 'light--red')
+    clearClass(drawBtn, 'light--green')
+  } else {
+    setClass(el, 'light--green')
+    clearClass(eraseBtn, 'light--red')
+  }
+}
 
 async function handleCreateAcct(e) {
   e.preventDefault()
@@ -364,6 +376,14 @@ function removePeerVideo(peerId) {
   } else {
     console.log('Unknown peer')
   }
+}
+
+function setClass(el, className) {
+  el.classList.add(className)
+}
+
+function clearClass(el, className) {
+  el.classList.remove(className)
 }
 
 function eraseWrapper(pointsList) {
