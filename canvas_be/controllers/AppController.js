@@ -16,6 +16,13 @@ class AppController {
     if (!canvas) return res.status(403).send({error: 'no canvas with the name you provided'})
     return res.render('index', {key: key, canvas: canvasName})
   }
+
+  static async enter(req, res) {
+    if (!dbClient.isAlive()) return res.status(500).send({error: 'storage unavailable'})
+    const key = req.params.key
+    if (!key) return res.status(403).send({error: 'missing required params'})
+    return res.render('main_index', {key: key})
+  }
 }
 
 module.exports = AppController
