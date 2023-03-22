@@ -4,6 +4,8 @@ const createRoomBtn = document.getElementById('create--wss')
 const modeButtons = document.getElementsByClassName('mode--buttons')
 const clearCanvasBtn = document.getElementById('clear--canvas')
 const startMediaBtn = document.getElementById('start--media')
+let eraseBtn
+let drawBtn
 
 
 let drawOpts = {
@@ -12,11 +14,12 @@ let drawOpts = {
 
 Array.from(modeButtons).forEach(function(el) {
   el.addEventListener('click', setMode)
+  if (el.getAttribute('data-mode') === 'draw') {
+    drawBtn = el
+  } else {
+    eraseBtn = el
+  }
 })
-
-function setMode(e) {
-  drawOpts.mode = e.target.getAttribute('data-mode')
-}
 
 
 let key = null

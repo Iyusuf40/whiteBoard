@@ -108,3 +108,11 @@ video {
 #share--url {
   width: 80%;
 }
+
+.light--red {
+  background-color: rgba(242, 47, 47, 0.5);
+}
+
+.light--green {
+  background-color: rgba(6, 248, 27, 0.5);
+}
