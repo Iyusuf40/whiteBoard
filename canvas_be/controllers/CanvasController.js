@@ -63,6 +63,15 @@ class CanvasController {
         console.log('closing socket with id', ws.id)
         const id = ws.id
         const peerId = CanvasController.wsToPeerIdMap[id]
+        delete(CanvasController.wsToPeerIdMap[id]) // remember to do this with redis
+        if (!Object.keys(CanvasController.wsToPeerIdMap).length) {
+          // no any client connected to listening socket anymore
+          // close it and cleam CanvasController.globalSocketServers
+          delete(CanvasController.globalSocketsServers[key]) // implement with redis
+          wss.close()
+          // no clients to broadcast to at this juncture therefore return
+          return
+        }
         await MediaController.removeFromRoom(key, peerId)
         const message = JSON.stringify({peerId, action: 'peer-disconnect'})
         wss.clients.forEach(function each(client) {
