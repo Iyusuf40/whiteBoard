@@ -3,7 +3,7 @@ Description=server.js - A whiteboard app for developers
 After=network.target
 
 [Service]
-WorkingDirectory=/home/ubuntu/whiteBoard/canvas_be
+WorkingDirectory=/home/ubuntu/whiteBoard/app
 ExecStart=/usr/bin/node server.js
 Type=simple
 User=ubuntu
