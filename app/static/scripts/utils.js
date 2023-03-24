@@ -262,6 +262,7 @@ function setSharedUrl(key) {
   if (!canvasName) return alert('canvas not created')
   const urlDiv = document.getElementById('share--url')
   urlDiv.innerText = baseUrl + `join/${key}/${canvasName}`
+  urlDiv.style.display = 'block'
 }
 
 /**
