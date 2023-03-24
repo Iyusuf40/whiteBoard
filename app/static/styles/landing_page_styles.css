@@ -106,7 +106,7 @@ section > p, ul {
 
 .banner {
   height: 400px;
-  background-image: url('images/cover.PNG');
+  background-image: url('../images/cover.PNG');
   background-color: rgb(237, 194, 235);
   background-size: cover;
   margin-top: 5%;
