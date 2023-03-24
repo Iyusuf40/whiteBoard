@@ -6,6 +6,7 @@ body{
   padding: 25px;
   background-color: rgba(209, 208, 204, 0.6);
   height: 100%;
+  overflow-y: auto;
 }
 .title {
 	color: #5C6AC4;
@@ -76,7 +77,7 @@ span {
 
 #video-grid {
   display: grid;
-  /* position: fixed; */
+  /* overflow-y: scroll; */
   right: 0;
   top: 0;
   grid-template-columns: repeat(auto-fill, 200px);
@@ -84,7 +85,8 @@ span {
 }
 
 #media {
-  position: fixed;
+  position: absolute;
+  overflow-y: auto;
   right: 1px;
   top: 110px;
 }
@@ -106,7 +108,9 @@ video {
 }
 
 #share--url {
-  width: 80%;
+  display: none;
+  width: 90%;
+  overflow: scroll;
 }
 
 .light--red {
