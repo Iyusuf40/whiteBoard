@@ -14,7 +14,7 @@ Install the dependencies: `npm install`
 this app uses mongodb for persistence, In order to run the app locally do ensure you have mongodb
 installed on your machine
 
-Start the server: `./start_server.js`
+Start the server: `./start_server.sh`
 Open a web browser and navigate to http://localhost:3000
 
 ## Usage
