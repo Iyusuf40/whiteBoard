@@ -8,8 +8,8 @@ This is an Express.js app that allows users to participate in video conferences 
 To install and run the app, follow these steps:
 
 Clone the repository to your local machine: `git clone https://github.com/Iyusuf40/whiteBoard`
-Navigate to the project directory: cd app
-Install the dependencies: npm install
+Navigate to the project directory: `cd app`
+Install the dependencies: `npm install`
 ### Note: 
 this app uses mongodb for persistence, In order to run the app locally do ensure you have mongodb
 installed on your machine
@@ -38,4 +38,4 @@ If you'd like to contribute to the app, feel free to fork the repository and sub
 This app is licensed under the MIT License. See the LICENSE file for more information.
 
 ## Credits
-This app was created by [Yusuf Istaku](https://github.com/Iyusuf40) and [Valentine Maduagwu](https://github.com/Theocode12). Thanks to the developers of PeerJS for their excellent library and the developers of the other packages used to build the app.
+This app was created by [Yusuf Istaku](https://github.com/Iyusuf40) and [Valentine Maduagwu](https://github.com/Theocode12). Thanks to the developers of [PeerJS](https://peerjs.com/) for their excellent library and the developers of the other packages used to build the app.
