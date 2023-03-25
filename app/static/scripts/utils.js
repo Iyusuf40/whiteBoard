@@ -276,6 +276,7 @@ function setupCanvas() {
   let _canvas = document.createElement('div')
   canvas = _canvas
   canvas.className = 'canvas'
+  canvas.setAttribute('isCanvas', 'true')
   canvas.addEventListener("mousedown", handleMouseDown);
   canvas.addEventListener("touchstart", handleTouchStart);
 
@@ -481,6 +482,8 @@ function handleTouchMoveDraw(e) {
   if (!trackClick) {
     return
   }
+  const targetEl = e.changedTouches[0].target
+  if (!targetEl.getAttribute('isCanvas')) return
   if (drawOpts.mode === 'draw') {
     const x = Math.floor(e.changedTouches[0].pageX)
     const y = Math.floor(e.changedTouches[0].pageY)
