@@ -482,8 +482,6 @@ function handleTouchMoveDraw(e) {
   if (!trackClick) {
     return
   }
-  const targetEl = e.changedTouches[0].target
-  if (targetEl.getAttribute('isCanvas')) return
   if (drawOpts.mode === 'draw') {
     const x = Math.floor(e.changedTouches[0].pageX)
     const y = Math.floor(e.changedTouches[0].pageY)
