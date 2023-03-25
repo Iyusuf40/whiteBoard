@@ -273,13 +273,6 @@ function setSharedUrl(key) {
  */
 
 function setupCanvas() {
-  /**
-   * prevent draw on touch on non-canvas areas
-   */
-  const body = document.getElementsByName('body')[0]
-  body.addEventListener("touchstart", handleMouseUp)
-  body.addEventListener("touchmove", handleMouseUp)
-  
   let _canvas = document.createElement('div')
   canvas = _canvas
   canvas.className = 'canvas'
