@@ -27,7 +27,7 @@ Once the app is running, you can use it to participate in video conferences and 
 share the link displayed to your peers
 * you can start media if you wish to have a video conference
 
-The main frontend logic for the app is located in static/scripts/script.js. This file contains the code for handling video conferencing and canvas functionality.
+The main frontend logic for the app is located in static/scripts/utils.js. This file contains the code for handling video conferencing and canvas functionality.
 
 You can customize the app by modifying the HTML and CSS files in the static directory and the server-side code in the server.js file and controller directory.
 
