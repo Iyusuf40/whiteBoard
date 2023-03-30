@@ -28,6 +28,7 @@ class UsersController {
     const password = req.body.password
     if (!password) return res.status(401).send({error: 'password must be specified'})
     const user = await UsersController.findUser({id})
+    if (!user) return res.status(404).send({error: 'user Not found'})
     const userExist = await UsersController.validateHash(password, user.password)
     if (!userExist) return res.status(404).send({error: 'user Not found'})
     return res.send({key: user.key})
