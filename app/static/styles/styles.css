@@ -87,7 +87,7 @@ span {
 #media {
   position: absolute;
   overflow-y: auto;
-  right: 1px;
+  right: 0;
   top: 110px;
 }
 
