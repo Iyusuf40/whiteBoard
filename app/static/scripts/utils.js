@@ -556,7 +556,7 @@ function connectTwoPoints(pointsArr, canvas) {
   let longest = 0
   let xDiff = computeDistance(x1, x2)
   let yDiff = computeDistance(y1, y2)
-  let xFactor
+  let xFactor // used to determine which axis is longest later in function
   let yFactor
   if (xDiff > yDiff) {
     longest = xDiff
@@ -567,13 +567,68 @@ function connectTwoPoints(pointsArr, canvas) {
   xFactor = xDiff / longest
   yFactor = yDiff / longest
   
+  /**
+   * 
+   * drawInterval: holds the number of times shortest axis will change
+   * for every time it wont change
+   * 
+   * because e.g if y axis delta was longeer than x, we will need to loop y number
+   * of times changing y1 value each time to get closer to y2.
+   * However, in this case x1 cannot be allowed to change equally as y1 else
+   * final destination point will be farther than the actual destination point.
+   * 
+   * e.g if y1 = 2 and y2 = 10 while x1 = 1 and x2 = 5
+   * final position = [5, 10]
+   * longest axis = 10 - 2 == 8
+   * if we changed x1 8 times just like y1, final position will be [9, 10]
+   * which is wrong, as such we need a means to skip changing x1 so that
+   * we finally arrive at [5, 10]. That is what drawInterval helps with
+   * 
+   * drawInterval is the number of loops that for each such loop the
+   * shorter axis coordinate wont change once or will be skipped
+   * 
+   * take for instance longest = 50, shortest = 45, for every 10 itearion of
+   * the loop 0 to 50 shortest coordinate wont change once but will change
+   * 9 times.. therefore 50 (loop) / 10 (set for skipping) == 5 and 5 * 9 == 45
+   * therefore shortest is only changed 45 times, the number required.
+   * 
+   * formula:
+   *      drawInterval = longest / (longest - shortest)
+   */
   let drawInterval = xFactor !== 1 ? longest /(longest - xDiff) : longest / (longest - yDiff)
   if (yDiff === xDiff) drawInterval = 1
   drawInterval = Number(drawInterval.toFixed(2))
 
 
-  let skip = false
-  let prev = drawInterval
+  let skip = false // determines if shortest should change or not
+  let prev = drawInterval // prev saves previous base from the previous iteration
+
+  /**
+   * 
+   * base: is used to determine if iteration has reached the next set of iterations
+   * specified by drawInterval
+   * 
+   * Logic:
+   * for our 50 - 45 example above, draw interval = 10, we could loop, everytime we hit
+   * index % interval === 0, we could skip, making sure shortest changes only 9 times.
+   * 
+   * But the above abstraction wont work for 50 - 20, where drawInterval = 1.6667
+   * or any floating point number for that matter.
+   * 
+   * But we can try a little hack.
+   * for each iteraion we can divide the loop index by drawInterval (index / drawInterval)
+   * if the floored answer changes it means we have looped to the end of the
+   * loop block for draInterval.
+   * 
+   * e.g for 50 - 45 example and drawInterval = 10
+   * wnen idendex is between 1 and 10: floor(index / drawInterval) will always be 0
+   * wnen idendex is between 10 and 20: floor(index / drawInterval) will always be 1
+   * 
+   * so we check when this floor(index / drawInterval) changes. anytime it does change
+   * we are sure that we have reached the time to skip
+   * 
+   * it works pretty well with decimals too
+   */
   let base
   for (let i = 1; i <= longest; i++) {
     base = Math.floor(i / drawInterval)
@@ -619,10 +674,10 @@ function sendClearCanvasMsgToSocket() {
 }
 
 function computeDistance(p1, p2) {
+  if (p1 >= 0 && p2 >= 0) return abs(p1 - p2)
   if (p1 < 0 && p2 < 0) return abs(p1 + p2)
   if (p1 < 0 && p2 >= 0) return abs(p1 - p2)
   if (p1 >= 0 && p2 < 0) return abs(p2 - p1)
-  if (p1 >= 0 && p2 >= 0) return abs(p1 - p2)
   return p1 - p2
 }
 
