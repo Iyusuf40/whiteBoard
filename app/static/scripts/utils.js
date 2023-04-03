@@ -567,12 +567,19 @@ function connectTwoPoints(pointsArr, canvas) {
   xFactor = xDiff / longest
   yFactor = yDiff / longest
   
-  let drawInterval = xFactor !== 1 ? 
-                     Math.ceil((longest - xDiff) / xDiff) :
-                     Math.ceil((longest - yDiff) / yDiff)
-  
-  for (let i = 1; i <= longest + 1; i++) {
-    if (xFactor !== 1 && i % drawInterval) {
+  let drawInterval = xFactor !== 1 ? longest /(longest - xDiff) : longest / (longest - yDiff)
+  if (yDiff === xDiff) drawInterval = 1
+  drawInterval = Number(drawInterval.toFixed(2))
+
+
+  let skip = false
+  let prev = drawInterval
+  let base
+  for (let i = 1; i <= longest; i++) {
+    base = Math.floor(i / drawInterval)
+    skip = base > prev
+    prev = base
+    if (xFactor !== 1 && skip) {
       x1 = x1
     } else {
       if (x1 > x2) {
@@ -582,7 +589,7 @@ function connectTwoPoints(pointsArr, canvas) {
       }
     }
   
-    if (yFactor !== 1 && i % drawInterval) {
+    if (yFactor !== 1 && skip) {
       y1 = y1
     } else {
       if (y1 > y2) {
@@ -591,6 +598,7 @@ function connectTwoPoints(pointsArr, canvas) {
         y1++
       }
     }
+
     let el = write(`${x1}px`, `${y1}px`)
     if (el) canvas.appendChild(el)
   }
