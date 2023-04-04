@@ -4,6 +4,7 @@ const clearCanvasBtn = document.getElementById('clear--canvas')
 const startMediaBtn = document.getElementById('start--media')
 let eraseBtn
 let drawBtn
+let allowTouchStart = true
 
 
 let drawOpts = {
