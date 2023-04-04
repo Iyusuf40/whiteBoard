@@ -340,6 +340,7 @@ async function updateCanvasBE(payload) {
 
 function handleMouseUp(e) {
   trackClick = false
+  allowTouchStart = true
   globalPoints.splice(0, 1)
   if (!pointsBuffer.length) return
   updateCanvasBE(pointsBuffer)
@@ -352,6 +353,8 @@ function handleMouseDown(e) {
 }
 
 function handleTouchStart(e) {
+  if (!allowTouchStart) return
+  allowTouchStart = false
   trackClick = true
 }
 
