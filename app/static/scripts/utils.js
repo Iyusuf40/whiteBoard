@@ -276,6 +276,7 @@ function setupCanvas() {
   let _canvas = document.createElement('div')
   canvas = _canvas
   canvas.className = 'canvas'
+  canvas.setAttribute('isCanvas', 'true')
   canvas.addEventListener("mousedown", handleMouseDown);
   canvas.addEventListener("touchstart", handleTouchStart);
 
@@ -340,6 +341,7 @@ async function updateCanvasBE(payload) {
 
 function handleMouseUp(e) {
   trackClick = false
+  allowTouchStart = true
   globalPoints.splice(0, 1)
   if (!pointsBuffer.length) return
   updateCanvasBE(pointsBuffer)
@@ -352,6 +354,8 @@ function handleMouseDown(e) {
 }
 
 function handleTouchStart(e) {
+  if (!allowTouchStart) return
+  allowTouchStart = false
   trackClick = true
 }
 
@@ -484,6 +488,14 @@ function handleTouchMoveDraw(e) {
   if (drawOpts.mode === 'draw') {
     const x = Math.floor(e.changedTouches[0].pageX)
     const y = Math.floor(e.changedTouches[0].pageY)
+    const loc = e.changedTouches[0]
+    const clientX = Math.floor(loc.clientX)
+    const clientY = Math.floor(loc.clientY)
+    const el =  document.elementFromPoint(clientX, clientY)
+    if (!el.getAttribute('isCanvas')) {
+      trackClick = false  // user has wandered outside canvas
+      return
+    }
 
     globalPoints.push([x, y])
 
