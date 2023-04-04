@@ -492,7 +492,7 @@ function handleTouchMoveDraw(e) {
     const clientX = Math.floor(loc.clientX)
     const clientY = Math.floor(loc.clientY)
     const el =  document.elementFromPoint(clientX, clientY)
-    if (!el.getAttribute('isCanvas')) {
+    if (!el.getAttribute('isCanvas') && !el.getAttribute('data-pos')) {
       trackClick = false  // user has wandered outside canvas
       return
     }
