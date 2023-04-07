@@ -4,6 +4,7 @@ const dbClient = require('../utils/dbClient');
 const assert = require('assert')
 request.put = util.promisify(request.put)
 request.post = util.promisify(request.post)
+request.get = util.promisify(request.get)
 const { getKey, postOrPut } = require('./helper')
 
 after(() => {
@@ -17,7 +18,7 @@ after(() => {
 });
 
 describe('Test CanvasController', function () {
-  describe('Test create canvas', () => {
+  describe('Test create canvas endpoint', () => {
     it('should fail to create canvas on empty payload', async () => {
       const res = await postOrPut('canvas', 'post', {})
       assert(res.error === 'canvas name missing')
@@ -39,6 +40,27 @@ describe('Test CanvasController', function () {
       const payload = {name: 'test', key: await getKey()}
       const res = await postOrPut('canvas', 'post', payload)
       assert(res.name === 'test')
+    })
+  })
+
+  describe('Test get canvas endpoint', () => {
+    it('should fail to get any canvas with wrong key and name', async () => {
+      const res = await request.get(baseUrl + 'canvas/wrong_key/wrong_name')
+      assert(res.statusCode === 404)
+    })
+
+    it('should fail to get any canvas with right key but wrong name', async () => {
+      const key = await getKey()
+      const res = await request.get(baseUrl + `canvas/${key}/wrong_name`)
+      assert(res.statusCode === 404)
+    })
+
+    it('should get a canvas with right key and right name', async () => {
+      const key = await getKey()
+      const payload = {name: 'test', key}
+      await postOrPut('canvas', 'post', payload)
+      const res = await request.get(baseUrl + `canvas/${key}/test`)
+      assert(res.statusCode === 200)
     })
   })
 })
