@@ -2,8 +2,20 @@ const { expect } = require('chai');
 const uuid = require('uuid');
 const request = require('request');
 const util = require('util');
+const dbClient = require('../utils/dbClient');
+const { emitKeypressEvents } = require('readline');
 request.put = util.promisify(request.put)
 request.post = util.promisify(request.post)
+
+after(() => {
+  dbClient.db.dropDatabase();
+});
+
+const baseUrl = 'http://127.0.0.1:3000/'
+const user_cred = {
+  id: 1,
+  password: 'test'
+}
 
 describe('Tests for MediaController Api', function() {
   describe('Test for createMediaRoom', function() {
@@ -37,14 +49,20 @@ describe('Tests for MediaController Api', function() {
 
     it('should Test createMediaRoom when a valid user is entered', async function() {
       // Please input your personal key in the database
-      const key = '694e7dc2-3b74-4914-a9c7-70248e38f175';
+      const user = await request.post({
+        url: baseUrl + 'account',
+        json: true,
+        body: user_cred
+      })
+      const key = user.body.key;
       const resp = await request.post({
         url,
         json: true,
         body: {peerId: uuid.v4(), key},
       });
+
       expect(resp.statusCode).to.equal(201)
-      expect(resp.body).to.deep.equal({ staus: 'media room created successfully', key })
+      expect(resp.body).to.deep.equal({ status: 'media room created successfully', key })
     })
 
     it('should Test createMediaRoom when a non-valid user is entered', async function() {
