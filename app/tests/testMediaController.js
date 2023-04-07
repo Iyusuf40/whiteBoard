@@ -17,6 +17,21 @@ const user_cred = {
   password: 'test'
 }
 
+async function getKey() {
+  let user = await request.post({
+    url: baseUrl + 'account',
+    json: true,
+    body: user_cred
+  })
+  if (user.body.status === 'success') return user.body.key;
+  user = await request.post({
+    url: baseUrl + 'login',
+    json: true,
+    body: user_cred
+  })
+  return user.body.key
+}
+
 describe('Tests for MediaController Api', function() {
   describe('Test for createMediaRoom', function() {
     const url = 'http://127.0.0.1:3000/create_media_room'
@@ -49,12 +64,7 @@ describe('Tests for MediaController Api', function() {
 
     it('should Test createMediaRoom when a valid user is entered', async function() {
       // Please input your personal key in the database
-      const user = await request.post({
-        url: baseUrl + 'account',
-        json: true,
-        body: user_cred
-      })
-      const key = user.body.key;
+      const key = await getKey()
       const resp = await request.post({
         url,
         json: true,
@@ -107,6 +117,24 @@ describe('Tests for MediaController Api', function() {
       });
       expect(resp.statusCode).to.equal(401)
       expect(resp.body).to.deep.equal({ error: 'key must be specified' })
+    })
+
+    it('should Test joinMediaRoom when room exists', async function() {
+      const key = await getKey()
+      // create room
+      await request.post({
+        url: baseUrl + 'create_media_room',
+        json: true,
+        body: {peerId: uuid.v4(), key},
+      });
+      // join room
+      const resp = await request.put({
+        url,
+        json: true,
+        body: {peerId: uuid.v4(), key},
+      });
+      expect(resp.statusCode).to.equal(200)
+      expect(resp.body.peers.length).to.greaterThan(1)
     })
   });
 
