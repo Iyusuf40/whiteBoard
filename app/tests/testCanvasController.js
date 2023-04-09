@@ -5,7 +5,10 @@ const assert = require('assert')
 request.put = util.promisify(request.put)
 request.post = util.promisify(request.post)
 request.get = util.promisify(request.get)
-const { getKey, postOrPut } = require('./helper')
+const CanvasController = require('../controllers/CanvasController')
+const WebSocketServer = require('ws').WebSocketServer
+const { getKey, postOrPut } = require('./helper');
+const { get } = require('request');
 
 after(() => {
   dbClient.db.dropDatabase();
@@ -169,5 +172,39 @@ describe('Test CanvasController', function () {
       const res = await postOrPut(`clear_canvas_points/${key}`, 'put', {name: 'test'})
       assert(res.error === 'update failed / canvas was empty')
     })
+  })
+
+  describe('Test canvas_socket endpoint -> POST, creates a web socket server', () => {
+
+    it('should fail to create WSS if key not sent in payload', async () => {
+      const res = await postOrPut('canvas_socket', 'post', {})
+      assert(res.error === 'key must be specified')      
+    })
+
+    it('should fail to create WSS if invalid is key sent in payload', async () => {
+      const res = await postOrPut('canvas_socket', 'post', {key: 'wrong key'})
+      assert(res.error === 'user Not found')      
+    })
+
+    it('should create a WSS if correct key is passed', async () => {
+      const key = await getKey()
+      const res = await postOrPut('canvas_socket', 'post', {key})
+      assert(res.message === 'web socket server created successfully')      
+    })
+
+    it('should not create a new WSS if a user has one running', async () => {
+      const key = await getKey()
+      const res = await postOrPut('canvas_socket', 'post', {key})
+      assert(res.message === 'socket alive')      
+    })
+
+    // it('should valiadate that a WSS has been created for a user', async () => {
+    //   const key = await getKey()
+    //   const res = await postOrPut('canvas_socket', 'post', {key})
+    //   assert(res.message === 'socket alive')
+    //   assert(CanvasController.globalSocketsServers[key] !== null)
+    //   console.log(CanvasController.globalSocketsServers[key])
+    //   // assert(CanvasController.globalSocketsServers[key] instanceof WebSocketServer)
+    // })
   })
 })
