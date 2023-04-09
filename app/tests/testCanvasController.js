@@ -63,4 +63,75 @@ describe('Test CanvasController', function () {
       assert(res.statusCode === 200)
     })
   })
+
+  describe('Test /canvas_points/:key endpoint -> creates or deletes inks', () => {
+    const payload = [{point: {x: 1, y: 1}, action: 'write'}]
+    const body = {name: 'test', payload}
+    it('should fail to persist ink when canvas does not exist cos of wrong key', async () => {
+      const res = await postOrPut('canvas_points/wrong_key', 'put', body)
+      assert(res.error === 'canvas Not found')
+    })
+
+    it('should fail to persist ink when user with key exist but canvas does not exits', async () => {
+      const key = await getKey()
+      const body = {name: 'doesnt exist', payload}
+      const res = await postOrPut(`canvas_points/${key}`, 'put', body)
+      assert(res.error === 'canvas Not found')
+    })
+
+    it('should fail to persist ink when canvas name not passed in payload', async () => {
+      const key = await getKey()
+      const body = {name: '', payload}
+      const res = await postOrPut(`canvas_points/${key}`, 'put', body)
+      assert(res.error === 'canvas name missing')
+    })
+
+    it('should fail to persist ink when pointsList is empty', async () => {
+      const key = await getKey()
+      const body = {name: 'test', payload: []}
+      const res = await postOrPut(`canvas_points/${key}`, 'put', body)
+      assert(res.error === 'pointsList missing')
+    })
+
+    it('should fail to persist ink when action is not specified', async () => {
+      const key = await getKey()
+      const payload = [{point: {x: 1, y: 1}}]
+      const body = {name: 'test', payload}
+      const res = await postOrPut(`canvas_points/${key}`, 'put', body)
+      assert(res.error === 'action missing')
+    })
+
+    it('should successfully persist ink in storage', async () => {
+      const key = await getKey()
+      const res = await postOrPut(`canvas_points/${key}`, 'put', body)
+      assert(res.message === 'updated successfully')
+    })
+
+    it('should validate that successfully persisted ink exists in storage', async () => {
+      const key = await getKey()
+      const res = await request.get(baseUrl + `canvas/${key}/test`)
+      assert(res.statusCode === 200)
+      const canvas = JSON.parse(res.body)
+      const points = canvas.points
+      assert(Object.keys(points).includes(`${payload[0].point.x}:${payload[0].point.y}`))
+    })
+
+    it('should successfully delete an ink from storage', async () => {
+      const key = await getKey()
+      const payload = [{point: {x: 1, y: 1}, action: 'delete'}]
+      const body = {name: 'test', payload}
+      const res = await postOrPut(`canvas_points/${key}`, 'put', body)
+      assert(res.message === 'updated successfully')
+    })
+
+    it('should validate that deleted ink does not exists in storage', async () => {
+      const key = await getKey()
+      const res = await request.get(baseUrl + `canvas/${key}/test`)
+      assert(res.statusCode === 200)
+      const canvas = JSON.parse(res.body)
+      const points = canvas.points
+      assert(!Object.keys(points).includes(`${payload[0].point.x}:${payload[0].point.y}`))
+      assert(Object.keys(points).length === 0)
+    })
+  })
 })
