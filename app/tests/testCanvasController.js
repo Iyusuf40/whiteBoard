@@ -134,4 +134,40 @@ describe('Test CanvasController', function () {
       assert(Object.keys(points).length === 0)
     })
   })
+
+  describe('Test /clear_canvas_points/:key endpoint -> clears inks from storage', () => {
+    const payload = [{point: {x: 1, y: 1}, action: 'write'}]
+    const body = {name: 'test', payload}
+
+    it('should fail to clear when no canvas name is supplied', async () => {
+      const key = await getKey()
+      const res = await postOrPut(`clear_canvas_points/${key}`, 'put', {})
+      assert(res.error === 'canvas name missing')
+    })
+
+    it('should fail to clear when canvas does not exist', async () => {
+      const key = await getKey()
+      const res = await postOrPut(`clear_canvas_points/${key}`, 'put', {name: 'does not exist'})
+      assert(res.error === 'canvas Not found')
+    })
+
+    it('should fail to clear when canvas does not exist', async () => {
+      const key = await getKey()
+      const res = await postOrPut(`clear_canvas_points/wrong_key`, 'put', {name: 'does not exist'})
+      assert(res.error === 'canvas Not found')
+    })
+
+    it('should clear canvas successfully', async () => {
+      const key = await getKey()
+      await postOrPut(`canvas_points/${key}`, 'put', body) // persist ink in storage
+      const res = await postOrPut(`clear_canvas_points/${key}`, 'put', {name: 'test'})
+      assert(res.message === 'updated successfully')
+    })
+
+    it('should return error if canvas is empty', async () => {
+      const key = await getKey()
+      const res = await postOrPut(`clear_canvas_points/${key}`, 'put', {name: 'test'})
+      assert(res.error === 'update failed / canvas was empty')
+    })
+  })
 })
