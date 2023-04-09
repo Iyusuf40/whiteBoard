@@ -202,7 +202,7 @@ describe('Test CanvasController', function () {
     //   const key = await getKey()
     //   const res = await postOrPut('canvas_socket', 'post', {key})
     //   assert(res.message === 'socket alive')
-    //   assert(CanvasController.globalSocketsServers[key] !== null)
+    //   assert(CanvasController.globalSocketsServers[key])
     //   console.log(CanvasController.globalSocketsServers[key])
     //   // assert(CanvasController.globalSocketsServers[key] instanceof WebSocketServer)
     // })
