@@ -112,19 +112,23 @@ class CanvasController {
     const canvas = await CanvasController.findCanvas(canvasName)
     if (!canvas) return res.status(404).send({error: 'canvas Not found'})
     const filter = {name: canvasName}
+    let err = false
     /**
      * TODO: handle update in a separate job process
      * 
      * Wasting precious cpu cycles
      */
-    payload.forEach(async (change) => {
+    payload.forEach((change) => {
 
       const point = change.point
       const x = point.x
       const y = point.y
       const action = change.action
-      if (!action) return res.status(403).send({error: 'action missing'}) 
-      if (action == 'delete') {
+      if (!action) {
+        err = 'action missing'
+        return
+      }
+      if (action === 'delete') {
         const r = dbClient.deletePoint('canvas', filter, `points.${x}:${y}`, {})
         // if (!r.modifiedCount) return res.status(500).send({error: 'update failed'})
       } else {
@@ -133,7 +137,8 @@ class CanvasController {
       }
 
     })
-    return res.send({messgae: 'updated successfully'})
+    if (err) return res.status(403).send({error: err})
+    return res.send({message: 'updated successfully'})
   }
 
   static async clearPoints(req, res) {
@@ -148,7 +153,7 @@ class CanvasController {
     const filter = {name: canvasName}
     const resp = await dbClient.updateOne('canvas', filter, `points`, {})
     if (!resp.modifiedCount) return res.status(500).send({error: 'update failed / canvas was empty'})
-    return res.send({messgae: 'updated successfully'})
+    return res.send({message: 'updated successfully'})
   }
 
   static async getCanvas(req, res) {
