@@ -19,29 +19,90 @@ const putOpt = {
 }
 
 function setMode(e) {
+  if (!canvasReady) return
   const el = e.target
-  const mode = el.getAttribute('data-mode')
-  drawOpts.mode = mode
-  if (mode === 'erase') {
+  const mode = el.getAttribute('action')
+  drawOpts.mode = modeButtons
+  if (mode === 'nodraw') {
     setClass(el, 'light--red')
     clearClass(drawBtn, 'light--green')
+    setCtxProps('do nothing')
   } else {
     setClass(el, 'light--green')
-    clearClass(eraseBtn, 'light--red')
+    clearClass(noDrawBtn, 'light--red')
+    setCtxProps('draw')
   }
+}
+
+function setCtxProps(mode) {
+  if (mode === 'erase') {
+    let canvasContainer = document.getElementsByClassName('canvas--container')[0]
+    ctx.strokeStyle = window.getComputedStyle(canvasContainer).backgroundColor
+    ctx.lineWidth = 4
+  } else if (mode === 'draw') {
+    ctx.strokeStyle = "red"
+    ctx.lineWidth = 2
+  } else {
+    ctx.lineWidth = 0
+  }
+}
+
+function handleUndoRedo(e) {
+  const mode = e.target.getAttribute('action')
+  if (mode === 'undo') {
+    handleMainStack('pop')
+    currAction = { action: 'undo', payload: {} }
+    sendToSocket(currAction.action, currAction.payload)
+    updateCanvasBE(mainStack)
+  } else {
+    handleUndoStack('pop')
+    currAction = { action: 'redo', payload: {} }
+    sendToSocket(currAction.action, currAction.payload)
+    updateCanvasBE(mainStack)
+  }
+}
+
+function handleMainStack(action, event = [], persist = false) {
+  if (action === 'push') {
+    if (event.length) mainStack.push(copy(event))
+  } else if (action === 'pop') {
+    let popped = mainStack.pop()
+    if (popped) {
+      drawAll(popped, 'erase')
+      handleUndoStack('push', copy(popped))
+    }
+  } else {
+    throw new Error('action cannot be carried out on stack')
+  }
+  if (persist) updateCanvasBE(mainStack)
+}
+
+function handleUndoStack(action, event = [], persist = false) {
+  if (action === 'push') {
+    if (event.length) undoStack.push(copy(event))
+  } else if (action === 'pop') {
+    let popped = undoStack.pop()
+    if (popped) {
+      drawAll(popped, 'draw')
+      handleMainStack('push', copy(popped))
+    }
+  } else {
+    throw new Error('action cannot be carried out on stack')
+  }
+  if (persist) updateCanvasBE(mainStack)
 }
 
 async function handleCreateAcct(e) {
   e.preventDefault()
   const id = document.getElementById('create--act--id').value
   const password = document.getElementById('create--act--passwd').value
-  const body = JSON.stringify({id, password})
+  const body = JSON.stringify({ id, password })
   const data = await postData(baseUrl + 'account', body)
   if (!data) return alert('undefined behaviour occured during account creation')
   if (data.key) {
     key = data.key
   } else if (data.error) {
-    alert (data.error)
+    alert(data.error)
   } else {
     throw new Error('undefined behavior occured')
   }
@@ -57,13 +118,13 @@ async function handleLoginSubmit(e) {
   e.preventDefault()
   const id = document.getElementById('login--id').value
   const password = document.getElementById('login--passwd').value
-  const body = JSON.stringify({id, password})
+  const body = JSON.stringify({ id, password })
   const data = await postData(baseUrl + 'login', body)
   if (!data) return alert('undefined behaviour occured during login')
   if (data.key) {
     key = data.key
   } else if (data.error) {
-    alert (data.error)
+    alert(data.error)
   } else {
     throw new Error('undefined behavior occured')
   }
@@ -73,7 +134,7 @@ async function handleCanvasCreation(e) {
   e.preventDefault()
   if (!key) return alert('you are not logged in')
   const name = document.getElementById('create--canvas--form--val').value
-  const body = JSON.stringify({name: name, key: key})
+  const body = JSON.stringify({ name: name, key: key })
   const data = await postData(baseUrl + 'canvas', body)
   if (!data) return alert('undefined behaviour occured during account creation')
   if (data.name) {
@@ -81,7 +142,7 @@ async function handleCanvasCreation(e) {
     canvasName = data.name
     setupCanvas()
   } else if (data.error) {
-    alert (data.error)
+    alert(data.error)
     if (data.error === 'canvas already exists') {
       canvasName = name
       setupCanvas()
@@ -97,24 +158,25 @@ async function sendClearCanvasToBE(e) {
   if (!key) return alert('you are not logged in')
   if (!canvasName) return alert('canvas name not set')
   const url = baseUrl + `clear_canvas_points/${key}`
-  const body = JSON.stringify({name: canvasName})
+  const body = JSON.stringify({ name: canvasName })
   putData(url, body)
   sendClearCanvasMsgToSocket()
   clearCanvas()
 }
 
 function clearCanvas() {
-  for (const key in globalElRepo) {
-    const ink = globalElRepo[key]
-    erase(ink, false)
+  for (const line of mainStack) {
+    drawAll(line, 'erase', false)
   }
+  undoStack = []
+  mainStack = []
 }
 
 async function handleCreateWss(e) {
   e.preventDefault()
   if (!key) return alert('you are not logged in')
   if (!canvasName) return alert('no canvas created')
-  const body = JSON.stringify({key: key})
+  const body = JSON.stringify({ key: key })
   const data = await postData(baseUrl + 'canvas_socket', body)
   if (!data) return alert('undefined behaviour occured during account creation')
   if (data.message) {
@@ -126,7 +188,7 @@ async function handleCreateWss(e) {
     admin = true
     roomCreated = true
   } else if (data.error) {
-    alert (data.error)
+    alert(data.error)
   } else {
     throw new Error('undefined behavior occured')
   }
@@ -138,7 +200,7 @@ async function handleStartMedia(e) {
     if (!roomCreated) return alert('room not created')
     const members = await getRoomMembers()
     const stream = await userMedia()
-    sendToSocket('bind peerId to ws', {peerId})
+    sendToSocket('bind peerId to ws', peerId)
     for (const memberId of members) {
       if (memberId !== peerId) connectToNewUser(memberId, stream)
     }
@@ -158,14 +220,14 @@ async function joinMediaRoom() {
   if (!canvasName) return alert('no canvas created')
   if (!peerId) return alert('please try again, peerId not set')
 
-  const body = JSON.stringify({key, peerId})
+  const body = JSON.stringify({ key, peerId })
   const url = baseUrl + 'join_media_room'
   const data = await putData(url, body)
   if (!data) return alert('undefined behaviour occured during account creation')
   if (data.peers) {
     return data.peers
   } else if (data.error) {
-    alert (data.error)
+    alert(data.error)
   } else {
     throw new Error('undefined behavior occured')
   }
@@ -176,7 +238,7 @@ async function createMediaRoom() {
   if (!canvasName) return alert('no canvas created')
   if (!peerId) return alert('please try again, peerId not set')
 
-  const body = JSON.stringify({key, peerId})
+  const body = JSON.stringify({ key, peerId })
   const url = baseUrl + 'create_media_room'
   const data = await postData(url, body)
   if (!data) return alert('undefined behaviour occured during account creation')
@@ -185,45 +247,45 @@ async function createMediaRoom() {
     // emit peerId
     return true
   } else if (data.error) {
-    alert (data.error)
+    alert(data.error)
   } else {
     throw new Error('undefined behavior occured')
   }
 }
 
 async function postData(url, data) {
-  const postOptLocal = {...postOpt, body: data}
+  const postOptLocal = { ...postOpt, body: data }
   return fetch(url, postOptLocal)
-  .then(data => {
-    return data.json()
-  })
-  .then((data) => {
-    return data
-  })
-  .catch((err) => {
-    console.error(err)
-    return null
-  })
+    .then(data => {
+      return data.json()
+    })
+    .then((data) => {
+      return data
+    })
+    .catch((err) => {
+      console.error(err)
+      return null
+    })
 }
 
 async function putData(url, data) {
-  const putOptLocal = {...putOpt, body: data}
+  const putOptLocal = { ...putOpt, body: data }
   return fetch(url, putOptLocal)
-  .then(data => {
-    return data.json()
-  })
-  .then((data) => {
-    return data
-  })
-  .catch((err) => {
-    console.error(err)
-    return null
-  })
+    .then(data => {
+      return data.json()
+    })
+    .then((data) => {
+      return data
+    })
+    .catch((err) => {
+      console.error(err)
+      return null
+    })
 }
 
 function createSocket() {
 
-  if (!key) return alert ('you are not logged in')
+  if (!key) return alert('you are not logged in')
 
   if (socketCreated) return
 
@@ -272,57 +334,71 @@ function setSharedUrl(key) {
  *
  */
 
+function setUpCanvasCtx(canvasContainer) {
+
+  canvas = document.getElementById('canvas')
+
+  ctx = canvas.getContext('2d')
+  ctx.canvas.width = canvasContainer.offsetWidth || 1000
+  ctx.canvas.height = canvasContainer.offsetHeight || 1000
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+
+  ctx.strokeStyle = 'red';
+}
+
 function setupCanvas() {
-  let _canvas = document.createElement('div')
-  canvas = _canvas
-  canvas.className = 'canvas'
+  let canvasContainer = document.getElementsByClassName('canvas--container')[0]
+
+  clearClass(canvasContainer, 'no--display')
+
+  ofsetX = canvasContainer.getBoundingClientRect().left + window.scrollX
+  ofsetY = canvasContainer.getBoundingClientRect().top + window.scrollY
+  setUpCanvasCtx(canvasContainer)
   canvas.setAttribute('isCanvas', 'true')
   canvas.addEventListener("mousedown", handleMouseDown);
   canvas.addEventListener("touchstart", handleTouchStart);
-
   canvas.addEventListener("mouseup", handleMouseUp);
   canvas.addEventListener("touchend", handleMouseUp);
   canvas.addEventListener("mouseleave", handleMouseUp);
-
   canvas.addEventListener("mousemove", handleMouseMoveDraw);
   canvas.addEventListener("touchmove", handleTouchMoveDraw);
-  canvas.addEventListener("touchmove", handleTouchMoveErase);
 
-  root.appendChild(canvas)
+  root.appendChild(canvasContainer)
+
+  canvasReady = true
 }
 
-async function getCanvas(name=null) {
+async function getCanvas(name = null) {
   if (!canvasName) return alert('canvas name not set')
   const cName = name || canvasName
   if (!key) return alert('key required to get canvas')
   if (!cName) return alert('canvas name required to get canvas')
   const url = baseUrl + `canvas/${key}/${cName}`
   return fetch(url)
-  .then(res => res.json())
-  .then((data) => {
-    if (data.error) {
-      alert(data.error)
+    .then(res => res.json())
+    .then((data) => {
+      if (data.error) {
+        alert(data.error)
+        return null
+      }
+      return data
+    })
+    .catch((err) => {
+      console.error(err)
       return null
-    }
-    return data
-  })
-  .catch((err) => {
-    console.error(err)
-    return null
-  })
+    })
 }
 
-async function buildCanvas(name=null) {
+async function buildCanvas(name = null) {
   const cName = name || canvasName
   if (!key) return alert('key required to get canvas')
   if (!cName) return alert('canvas name required to get canvas')
   const _canvas = await getCanvas()
   if (!_canvas) return alert(`canvas: ${cName} not found`)
-  Object.keys(_canvas.points).forEach((point) => {
-    const [x, y] = point.split(':')
-    // const props = canvas.points[point]
-    const ink = write(x, y, false)
-    if (ink) canvas.appendChild(ink)
+  _canvas.points.forEach((point) => {
+    drawAll(point, 'draw', false)
+    handleMainStack('push', point, false)
   })
 }
 
@@ -334,42 +410,77 @@ async function updateCanvasBE(payload) {
   if (!canvasName) return alert('no canvas chosen')
   if (!payload.length) return console.log('payload empty')
   const url = baseUrl + `canvas_points/${key}`
-  const changes = JSON.stringify({payload, key, name: canvasName})
-  const res = await putData(url, changes)
+  const changes = JSON.stringify({ payload, key, name: canvasName })
+  let res
+  try {
+    res = await putData(url, changes)
+  } catch (e) {
+    console.error(e)
+  }
+  
   return res
 }
 
+
 function handleMouseUp(e) {
-  trackClick = false
+  // trackClick = false
   allowTouchStart = true
   globalPoints.splice(0, 1)
-  if (!pointsBuffer.length) return
-  updateCanvasBE(pointsBuffer)
-  sendToSocket(pointsBuffer[0].action, {pointsList: pointsBuffer})
-  pointsBuffer = []
+  if (pointsBuffer.length) handleMainStack('push', [...pointsBuffer])
+  let validEmptyStack = [[[]]]
+  if (trackClick) {
+    updateCanvasBE(mainStack.length? mainStack : validEmptyStack)
+    trackClick = false
+  }
+  /**
+   * use currAction obj instead of pointsBuffer
+   * has ref to current points popped or pushed
+   * has action attribute
+   */
+  currAction = { action: 'draw', payload: mainStack[mainStack.length - 1] }
+  sendToSocket(currAction.action, currAction.payload)
+  pointsBuffer = []  // end of contigious line
 }
+
+// function handleMouseDown(e) {
+//   trackClick = !trackClick
+// }
 
 function handleMouseDown(e) {
   trackClick = !trackClick
+  pointsBuffer = []
 }
+
+// function handleTouchStart(e) {
+//   if (!allowTouchStart) return
+//   allowTouchStart = false
+//   trackClick = true
+// }
 
 function handleTouchStart(e) {
   if (!allowTouchStart) return
   allowTouchStart = false
   trackClick = true
+  pointsBuffer = []
 }
 
 function handleSocketMessage(data) {
-  const { action, pointsList, peerId } = data
+  const { action, payload } = data
   if (!action) return console.log('action missing')
-  if (action === 'delete') {
-    eraseWrapper(pointsList)
+  if (action === 'erase') {
+    eraseWrapper(payload)
   } else if (action === 'clear') {
     clearCanvas()
-  } else if (action === 'peer-disconnect'){
-    removePeerVideo(peerId)
+  } else if (action === 'peer-disconnect') {
+    removePeerVideo(payload)  // payload is peerid
+  } else if (action === 'undo') {
+    handleMainStack('pop')
+  } else if (action === 'redo') {
+    handleUndoStack('pop')
+  } else if (action === 'draw'){
+    writeWrapper(payload)
   } else {
-    writeWrapper(pointsList)
+    console.log('no handler for action')
   }
 }
 
@@ -391,93 +502,61 @@ function clearClass(el, className) {
   el.classList.remove(className)
 }
 
+function connectTwoPoints(pointsArr) {
+  let x1 = pointsArr[0][0]
+  let x2 = pointsArr[1][0]
+  let y1 = pointsArr[0][1]
+  let y2 = pointsArr[1][1]
+
+  ctx.beginPath()
+  ctx.moveTo(x1, y1)
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
+
 function eraseWrapper(pointsList) {
   if (!pointsList || !pointsList.length) return console.log('pointsList is either missing or empty')
-  pointsList.forEach((change) => {
-    const {action, point} = change
-    if (action !== 'delete') return
-    const key = `${point.x}:${point.y}`
-    const el = globalElRepo[key]
-    erase(el, false)
-  })
+  drawAll(pointsList, 'erase', false)
 }
+
 
 function writeWrapper(pointsList) {
   if (!pointsList || !pointsList.length) return console.log('pointsList is either missing or empty')
-  pointsList.forEach((change) => {
-    const {action, point} = change
-    if (action !== 'write') return
-    const {x, y} = point
-    const ink = write(x, y, false)
-    if (ink) canvas.appendChild(ink)
-  })
+  drawAll(pointsList, 'draw', false)
+  handleMainStack('push', pointsList, false)
+  undoStack = []  // branch has moved forward 
 }
 
-function write(x, y, persist=true, props=null) {
-  const key = `${x}:${y}`
-  if (globalElRepo[key]) return null // do not allow zombie ink
-  let ink = document.createElement("span")
-  ink.style.left = x
-  ink.style.top = y
-  ink.addEventListener('mousemove', handleMouseMoveErase)
-  ink.setAttribute('data-pos', `${x}:${y}`)
-  if (persist) {
-    const changeUnit = {action: 'write', point: {x, y}}
-    pointsBuffer.push(changeUnit)
-  }
-  if (props) {
-    // add additional properties to ink
-  }
-  globalElRepo[key] = ink
-  return ink
+function erase(points) {
+  const diff = [points[0], points[1]]
+  connectTwoPoints(diff)
+  points.splice(0, 1)
 }
 
-function erase(e, persist=true) {
-  // collect data-pos
-  // send to backend
-  const key = e.getAttribute('data-pos')
-  const [x, y] = key.split(':')
-  e.remove()
-  delete(globalElRepo[key])
-  if (persist) {
-    const changeUnit = {action: 'delete', point: {x, y}}
-    pointsBuffer.push(changeUnit)
-  }
-}
+// function handleMouseMoveDraw(e) {
+//   if (!trackClick) {
+//     return
+//   }
+//   if (drawOpts.mode === 'draw') {
+//     const x = Math.floor(e.pageX)
+//     const y = Math.floor(e.pageY)
+
+//     globalPoints.push([x, y])
+
+//     if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
+//   }
+// }
 
 function handleMouseMoveDraw(e) {
   if (!trackClick) {
     return
   }
-  if (drawOpts.mode === 'draw') {
-    const x = Math.floor(e.pageX)
-    const y = Math.floor(e.pageY)
+  const x = e.pageX - ofsetX
+  const y = e.pageY - ofsetY
 
-    globalPoints.push([x, y])
-
-    if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
-  }
-}
-
-function handleMouseMoveErase(e) {
-  if (!trackClick) {
-    return
-  }
-  if (drawOpts.mode === 'erase'){
-    const data = e.target.getAttribute('data-pos')
-    if(data) {
-      /**
-       *
-       * clientX and Y pos is necessary because in erasemult
-       * elements will be retrieved by using document.getElFromPos
-       * which uses view port positions
-       *
-       *
-       */
-      const _data = `${e.clientX}:${e.clientY}`
-      eraseMultiple(_data)
-    }
-  }
+  globalPoints.push([x, y])
+  if (globalPoints.length > 1) draw(globalPoints, true)
 }
 
 function handleTouchMoveDraw(e) {
@@ -485,211 +564,77 @@ function handleTouchMoveDraw(e) {
   if (!trackClick) {
     return
   }
-  if (drawOpts.mode === 'draw') {
-    const x = Math.floor(e.changedTouches[0].pageX)
-    const y = Math.floor(e.changedTouches[0].pageY)
-    const loc = e.changedTouches[0]
-    const clientX = Math.floor(loc.clientX)
-    const clientY = Math.floor(loc.clientY)
-    const el =  document.elementFromPoint(clientX, clientY)
-    if (!el.getAttribute('isCanvas') && !el.getAttribute('data-pos')) {
-      trackClick = false  // user has wandered outside canvas
-      return
-    }
 
-    globalPoints.push([x, y])
-
-    if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
+  const x = Math.floor(e.changedTouches[0].pageX) - ofsetX
+  const y = Math.floor(e.changedTouches[0].pageY) - ofsetY
+  const loc = e.changedTouches[0]
+  const clientX = Math.floor(loc.clientX)
+  const clientY = Math.floor(loc.clientY)
+  const el = document.elementFromPoint(clientX, clientY)
+  if (!el.getAttribute('isCanvas')) {
+    trackClick = false  // user has wandered outside canvas
+    return
   }
+
+  globalPoints.push([x, y])
+
+  // if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
+  if (globalPoints.length > 1) draw(globalPoints, true)
 }
 
-function handleTouchMoveErase(e) {
-  e.preventDefault()
-  if (drawOpts.mode === 'erase') {
-    const loc = e.changedTouches[0]
-    const x = Math.floor(loc.clientX)
-    const y = Math.floor(loc.clientY)
-    const surrounding = getSurroundingInk(x, y, 10)
-    surrounding.forEach(function (pos) {
-      const el =  document.elementFromPoint(pos[0], pos[1])
-      const data = el.getAttribute('data-pos')
-      if(data) {
-        erase(el)
-      }
-    })
-  }
-}
+// function handleTouchMoveDraw(e) {
+//   if (!trackClick) {
+//     return
+//   }
+//   if (drawOpts.mode === 'draw') {
+//     const x = e.changedTouches[0].pageX - ofsetX
+//     const y = e.changedTouches[0].pageY - ofsetY
 
-function abs(val) {
-  if (val < 0) return val * -1
-  return val
-}
+//     globalPoints.push([x, y])
 
-function drawPoints(canvas, points) {
+//     if (globalPoints.length > 1) draw(globalPoints)
+//   }
+// }
+
+// function drawPoints(canvas, points) {
+//   const diff = [points[0], points[1]]
+//   connectTwoPoints(diff, canvas)
+//   points.splice(0, 1)
+// }
+
+function draw(points, persist = false) {
   const diff = [points[0], points[1]]
-  connectTwoPoints(diff, canvas)
+  if (persist) {
+    pointsBuffer.push(diff)
+    undoStack = []  // new item will be pushed on mainstack, so redo
+    // doesn't pop a previous undo unto mainstack 
+  }
+  connectTwoPoints(diff)
   points.splice(0, 1)
 }
 
-function getSurroundingInk(x, y, diff=5) {
-  let arr = []
-  for (let i = x - diff; i <= x + diff; i++) {
-    for (let j = y - diff; j <= y + diff; j++) arr.push([i, j])
-  }
-  return arr
-}
-
-function eraseMultiple(position) {
-  const [x, y] = position.split(':')
-
-  /**
-   *
-   * usage of Math.floor here is essential for performance.
-   * operations on floatin point numbers used crazy memory
-   * and was super slow
-   *
-   */
-  const surroundingInk = getSurroundingInk(Math.floor(x), Math.floor(y))
-
-  surroundingInk.forEach(function(coordinate) {
-    const el = document.elementFromPoint(coordinate[0], coordinate[1])
-    if (el && el.getAttribute('data-pos')) {
-      erase(el)
-    }
+function drawAll(points = [], mode, persist = false) {
+  setCtxProps(mode)
+  let pointsCopy = copy(points)
+  pointsCopy.forEach((line) => {
+    draw(line, persist)
   })
 }
 
-function connectTwoPoints(pointsArr, canvas) {
-  let x1 = pointsArr[0][0]
-  let x2 = pointsArr[1][0]
-  let y1 = pointsArr[0][1]
-  let y2 = pointsArr[1][1]
-
-  let longest = 0
-  let xDiff = computeDistance(x1, x2)
-  let yDiff = computeDistance(y1, y2)
-  let xFactor // used to determine which axis is longest later in function
-  let yFactor
-  if (xDiff > yDiff) {
-    longest = xDiff
-  } else {
-    longest = yDiff
-  }
-  
-  xFactor = xDiff / longest
-  yFactor = yDiff / longest
-  
-  /**
-   * 
-   * drawInterval: holds the number of times shortest axis will change
-   * for every time it wont change
-   * 
-   * because e.g if y axis delta was longeer than x, we will need to loop y number
-   * of times changing y1 value each time to get closer to y2.
-   * However, in this case x1 cannot be allowed to change equally as y1 else
-   * final destination point will be farther than the actual destination point.
-   * 
-   * e.g if y1 = 2 and y2 = 10 while x1 = 1 and x2 = 5
-   * final position = [5, 10]
-   * longest axis = 10 - 2 == 8
-   * if we changed x1 8 times just like y1, final position will be [9, 10]
-   * which is wrong, as such we need a means to skip changing x1 so that
-   * we finally arrive at [5, 10]. That is what drawInterval helps with
-   * 
-   * drawInterval is the number of loops that for each such loop the
-   * shorter axis coordinate wont change once or will be skipped
-   * 
-   * take for instance longest = 50, shortest = 45, for every 10 itearion of
-   * the loop 0 to 50 shortest coordinate wont change once but will change
-   * 9 times.. therefore 50 (loop) / 10 (set for skipping) == 5 and 5 * 9 == 45
-   * therefore shortest is only changed 45 times, the number required.
-   * 
-   * formula:
-   *      drawInterval = longest / (longest - shortest)
-   */
-  let drawInterval = xFactor !== 1 ? longest /(longest - xDiff) : longest / (longest - yDiff)
-  if (yDiff === xDiff) drawInterval = 1
-  drawInterval = Number(drawInterval.toFixed(2))
-
-
-  let skip = false // determines if shortest should change or not
-  let prev = drawInterval // prev saves previous base from the previous iteration
-
-  /**
-   * 
-   * base: is used to determine if iteration has reached the next set of iterations
-   * specified by drawInterval
-   * 
-   * Logic:
-   * for our 50 - 45 example above, draw interval = 10, we could loop, everytime we hit
-   * index % interval === 0, we could skip, making sure shortest changes only 9 times.
-   * 
-   * But the above abstraction wont work for 50 - 20, where drawInterval = 1.6667
-   * or any floating point number for that matter.
-   * 
-   * But we can try a little hack.
-   * for each iteraion we can divide the loop index by drawInterval (index / drawInterval)
-   * if the floored answer changes it means we have looped to the end of the
-   * loop block for draInterval.
-   * 
-   * e.g for 50 - 45 example and drawInterval = 10
-   * wnen idendex is between 1 and 10: floor(index / drawInterval) will always be 0
-   * wnen idendex is between 10 and 20: floor(index / drawInterval) will always be 1
-   * 
-   * so we check when this floor(index / drawInterval) changes. anytime it does change
-   * we are sure that we have reached the time to skip
-   * 
-   * it works pretty well with decimals too
-   */
-  let base
-  for (let i = 1; i <= longest; i++) {
-    base = Math.floor(i / drawInterval)
-    skip = base > prev
-    prev = base
-    if (xFactor !== 1 && skip) {
-      x1 = x1
-    } else {
-      if (x1 > x2) {
-        x1--
-      } else if(x1 < x2) {
-        x1++
-      }
-    }
-  
-    if (yFactor !== 1 && skip) {
-      y1 = y1
-    } else {
-      if (y1 > y2) {
-        y1--
-      } else if(y1 < y2) {
-        y1++
-      }
-    }
-
-    let el = write(`${x1}px`, `${y1}px`)
-    if (el) canvas.appendChild(el)
-  }
+function copy(arr) {
+  return JSON.parse(JSON.stringify(arr))
 }
 
 function sendToSocket(action, payload) {
   if (!action) return console.log('action not specified')
   if (!socket) return console.log('no socket set')
-  if (!Object.keys(payload).length) return console.log('payload empty')
-  const data = JSON.stringify({...payload, action})
+  if (!payload) return console.log('payload not set')
+  const data = JSON.stringify({ payload, action })
   socket.send(data)
 }
 
 function sendClearCanvasMsgToSocket() {
   if (!socket) return console.log('no socket set')
-  const data = JSON.stringify({action: 'clear'})
+  const data = JSON.stringify({ action: 'clear' })
   socket.send(data)
 }
-
-function computeDistance(p1, p2) {
-  if (p1 >= 0 && p2 >= 0) return abs(p1 - p2)
-  if (p1 < 0 && p2 < 0) return abs(p1 + p2)
-  if (p1 < 0 && p2 >= 0) return abs(p1 - p2)
-  if (p1 >= 0 && p2 < 0) return abs(p2 - p1)
-  return p1 - p2
-}
-

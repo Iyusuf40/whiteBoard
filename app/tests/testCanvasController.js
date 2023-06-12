@@ -68,7 +68,7 @@ describe('Test CanvasController', function () {
   })
 
   describe('Test /canvas_points/:key endpoint -> creates or deletes inks', () => {
-    const payload = [{point: {x: 1, y: 1}, action: 'write'}]
+    const payload = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
     const body = {name: 'test', payload}
     it('should fail to persist ink when canvas does not exist cos of wrong key', async () => {
       const res = await postOrPut('canvas_points/wrong_key', 'put', body)
@@ -89,19 +89,19 @@ describe('Test CanvasController', function () {
       assert(res.error === 'canvas name missing')
     })
 
-    it('should fail to persist ink when pointsList is empty', async () => {
+    it('should fail to persist ink when payload is empty', async () => {
       const key = await getKey()
       const body = {name: 'test', payload: []}
       const res = await postOrPut(`canvas_points/${key}`, 'put', body)
-      assert(res.error === 'pointsList missing')
+      assert(res.error === 'invalid payload: mainStack structure')
     })
 
-    it('should fail to persist ink when action is not specified', async () => {
+    it('should fail to persist ink when payload structure is not correct', async () => {
       const key = await getKey()
-      const payload = [{point: {x: 1, y: 1}}]
+      const payload = [[]]  // one step missing
       const body = {name: 'test', payload}
       const res = await postOrPut(`canvas_points/${key}`, 'put', body)
-      assert(res.error === 'action missing')
+      assert(res.error === 'invalid payload: mainStack structure')
     })
 
     it('should successfully persist ink in storage', async () => {
@@ -116,30 +116,12 @@ describe('Test CanvasController', function () {
       assert(res.statusCode === 200)
       const canvas = JSON.parse(res.body)
       const points = canvas.points
-      assert(Object.keys(points).includes(`${payload[0].point.x}:${payload[0].point.y}`))
-    })
-
-    it('should successfully delete an ink from storage', async () => {
-      const key = await getKey()
-      const payload = [{point: {x: 1, y: 1}, action: 'delete'}]
-      const body = {name: 'test', payload}
-      const res = await postOrPut(`canvas_points/${key}`, 'put', body)
-      assert(res.message === 'updated successfully')
-    })
-
-    it('should validate that deleted ink does not exists in storage', async () => {
-      const key = await getKey()
-      const res = await request.get(baseUrl + `canvas/${key}/test`)
-      assert(res.statusCode === 200)
-      const canvas = JSON.parse(res.body)
-      const points = canvas.points
-      assert(!Object.keys(points).includes(`${payload[0].point.x}:${payload[0].point.y}`))
-      assert(Object.keys(points).length === 0)
+      assert(points.length === payload.length)
     })
   })
 
   describe('Test /clear_canvas_points/:key endpoint -> clears inks from storage', () => {
-    const payload = [{point: {x: 1, y: 1}, action: 'write'}]
+    const payload = {points: [[[1, 2], [3, 4]], [[5, 6], [7, 8]]], action: 'write'}
     const body = {name: 'test', payload}
 
     it('should fail to clear when no canvas name is supplied', async () => {
