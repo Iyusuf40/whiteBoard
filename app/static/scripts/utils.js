@@ -18,6 +18,67 @@ const putOpt = {
   // body: REMEMBER TO USE SPREAD SYNTAX TO INCLUDE BODY
 }
 
+class Stack {
+  /**
+   * basic implementation of stack
+   * javascripts array wasnt enough because it
+   * somestimes goes out of order - especially after passing
+   * across internet in json string
+   */
+  constructor(map=null) {  // new stack will be null while stack
+    //  rebuilding old stack will take in persisted map
+    this.map = map ? map : {}
+  }
+
+  push(data) {
+    if (!data) return 0
+    let len = this.len()
+    let key = len + 1
+    this.map[key] = data
+    return key
+  }
+
+  pop() {
+    let key = this.len()
+    let _data = this.copy(this.map[key])
+    if (!_data) return null
+    delete this.map[key]
+    return _data
+  }
+
+  len() {
+    return Object.keys(this.map).length
+  }
+
+  copy(data) {
+    if (!data) return null
+    return JSON.parse(JSON.stringify(data))
+  }
+
+  self() {
+    return this.map
+  }
+
+  repr() {
+    let len = this.len()
+    let arr = []
+    for (let i = 1; i <= len; i++) {
+      arr.push(this.map[i])
+    }
+
+    return arr
+  }
+
+  clear() {
+    this.map = {}
+  }
+
+  getTop() {
+    let len = this.len()
+    return this.map[len]
+  }
+}
+
 function setMode(e) {
   if (!canvasReady) return
   const el = e.target
@@ -53,12 +114,12 @@ function handleUndoRedo(e) {
     handleMainStack('pop')
     currAction = { action: 'undo', payload: {} }
     sendToSocket(currAction.action, currAction.payload)
-    updateCanvasBE(mainStack)
+    updateCanvasBE(mainStack.self())
   } else {
     handleUndoStack('pop')
     currAction = { action: 'redo', payload: {} }
     sendToSocket(currAction.action, currAction.payload)
-    updateCanvasBE(mainStack)
+    updateCanvasBE(mainStack.self())
   }
 }
 
@@ -89,7 +150,7 @@ function handleUndoStack(action, event = [], persist = false) {
   } else {
     throw new Error('action cannot be carried out on stack')
   }
-  if (persist) updateCanvasBE(mainStack)
+  if (persist) updateCanvasBE(mainStack.self())
 }
 
 async function handleCreateAcct(e) {
@@ -165,11 +226,11 @@ async function sendClearCanvasToBE(e) {
 }
 
 function clearCanvas() {
-  for (const line of mainStack) {
+  for (const line of mainStack.repr()) {
     drawAll(line, 'erase', false)
   }
-  undoStack = []
-  mainStack = []
+  undoStack.clear()
+  mainStack.clear()
 }
 
 async function handleCreateWss(e) {
@@ -396,9 +457,16 @@ async function buildCanvas(name = null) {
   if (!cName) return alert('canvas name required to get canvas')
   const _canvas = await getCanvas()
   if (!_canvas) return alert(`canvas: ${cName} not found`)
-  _canvas.points.forEach((point) => {
-    drawAll(point, 'draw', false)
-    handleMainStack('push', point, false)
+  // _canvas.points.forEach((point) => {
+  //   drawAll(point, 'draw', false)
+  //   handleMainStack('push', point, false)
+  // })
+  let map = _canvas.points
+  mainStack = new Stack(map)
+  console.log(_canvas, mainStack)
+  mainStack.repr().forEach((point) => {
+      drawAll(point, 'draw', false)
+      handleMainStack('push', point, false)
   })
 }
 
@@ -408,7 +476,8 @@ async function updateCanvasBE(payload) {
    */
   if (!key) return alert('you are not logged in')
   if (!canvasName) return alert('no canvas chosen')
-  if (!payload.length) return console.log('payload empty')
+  // if (!Object.keys(payload.length)) return console.log('payload empty')
+  console.log('payload ucbe ->', payload)
   const url = baseUrl + `canvas_points/${key}`
   const changes = JSON.stringify({ payload, key, name: canvasName })
   let res
@@ -427,9 +496,9 @@ function handleMouseUp(e) {
   allowTouchStart = true
   globalPoints.splice(0, 1)
   if (pointsBuffer.length) handleMainStack('push', [...pointsBuffer])
-  let validEmptyStack = [[[]]]
+  let validEmptyStack = {}
   if (trackClick) {
-    updateCanvasBE(mainStack.length? mainStack : validEmptyStack)
+    updateCanvasBE(mainStack.len()? mainStack.self() : validEmptyStack)
     trackClick = false
   }
   /**
@@ -437,7 +506,7 @@ function handleMouseUp(e) {
    * has ref to current points popped or pushed
    * has action attribute
    */
-  currAction = { action: 'draw', payload: mainStack[mainStack.length - 1] }
+  currAction = { action: 'draw', payload: mainStack.getTop() }
   sendToSocket(currAction.action, currAction.payload)
   pointsBuffer = []  // end of contigious line
 }
@@ -525,7 +594,7 @@ function writeWrapper(pointsList) {
   if (!pointsList || !pointsList.length) return console.log('pointsList is either missing or empty')
   drawAll(pointsList, 'draw', false)
   handleMainStack('push', pointsList, false)
-  undoStack = []  // branch has moved forward 
+  undoStack.clear()  // branch has moved forward 
 }
 
 function erase(points) {
@@ -606,7 +675,7 @@ function draw(points, persist = false) {
   const diff = [points[0], points[1]]
   if (persist) {
     pointsBuffer.push(diff)
-    undoStack = []  // new item will be pushed on mainstack, so redo
+    undoStack.clear()  // new item will be pushed on mainstack, so redo
     // doesn't pop a previous undo unto mainstack 
   }
   connectTwoPoints(diff)

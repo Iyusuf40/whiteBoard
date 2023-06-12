@@ -7,8 +7,8 @@ let drawBtn
 let allowTouchStart = true
 let ctx
 
-let mainStack = []
-let undoStack = []
+let mainStack = new Stack()
+let undoStack = new Stack()
 let currDraw = []
 
 let ofsetX = 0
