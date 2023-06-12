@@ -42,7 +42,7 @@ span {
   position: absolute;
 }
 
-.mode--buttons {
+.mode--buttons, .undoredo--buttons {
   color: black;
   /* display: inline-block; */
   border: 1px solid blue;
@@ -62,7 +62,7 @@ span {
   background-color: blue;
 }
 
-.canvas {
+.canvas--container {
   font-size: 0px;
   line-height: 0;
   clear: both;

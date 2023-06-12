@@ -1,6 +1,7 @@
 const dbClient = require('../utils/dbClient')
 const UsersController = require('./UsersController')
 const MediaController = require('./MediaController')
+const { isKeyObject } = require('util/types')
 const WebSocketServer = require('ws').WebSocketServer
 const WebSocket = require('ws').WebSocket
 const v4 = require('uuid').v4
@@ -49,7 +50,7 @@ class CanvasController {
         const currWss = CanvasController.globalSocketsServers[key]
         // the above code is unnecessary because currWss === wss
         if (payload.action === 'bind peerId to ws') {
-          CanvasController.wsToPeerIdMap[ws.id] = payload.peerId
+          CanvasController.wsToPeerIdMap[ws.id] = payload.payload  // peerId
         } else {  // broadcast
           currWss.clients.forEach(function each(client) {
             if (ws !== client) {
@@ -64,16 +65,19 @@ class CanvasController {
         const id = ws.id
         const peerId = CanvasController.wsToPeerIdMap[id]
         delete(CanvasController.wsToPeerIdMap[id]) // remember to do this with redis
-        if (!Object.keys(CanvasController.wsToPeerIdMap).length) {
+        if (!Array.from(wss.clients).length) {
           // no any client connected to listening socket anymore
           // close it and cleam CanvasController.globalSocketServers
           delete(CanvasController.globalSocketsServers[key]) // implement with redis
           wss.close()
+          console.log('closing web socket server with id:', key)
           // no clients to broadcast to at this juncture therefore return
           return
         }
+
         await MediaController.removeFromRoom(key, peerId)
-        const message = JSON.stringify({peerId, action: 'peer-disconnect'})
+        const message = JSON.stringify({payload: peerId, action: 'peer-disconnect'})
+
         wss.clients.forEach(function each(client) {
           if (ws !== client) {
             client.send(message);
@@ -107,37 +111,18 @@ class CanvasController {
     const payload = req.body.payload
     if (!name) return res.status(403).send({error: 'canvas name missing'}) 
     if (!key) return res.status(403).send({error: 'key missing'}) 
-    if (!payload || !payload.length) return res.status(403).send({error: 'pointsList missing'}) 
+    if (
+      !payload || 
+      !CanvasController.isValidateStackStructure(payload)
+    ) return res.status(403).send({error: 'invalid payload: mainStack structure'}) 
     const canvasName = `${key}:${name}`
     const canvas = await CanvasController.findCanvas(canvasName)
     if (!canvas) return res.status(404).send({error: 'canvas Not found'})
     const filter = {name: canvasName}
-    let err = false
-    /**
-     * TODO: handle update in a separate job process
-     * 
-     * Wasting precious cpu cycles
-     */
-    payload.forEach((change) => {
 
-      const point = change.point
-      const x = point.x
-      const y = point.y
-      const action = change.action
-      if (!action) {
-        err = 'action missing'
-        return
-      }
-      if (action === 'delete') {
-        const r = dbClient.deletePoint('canvas', filter, `points.${x}:${y}`, {})
-        // if (!r.modifiedCount) return res.status(500).send({error: 'update failed'})
-      } else {
-        const resp = dbClient.updateOne('canvas', filter, `points.${x}:${y}`, point)
-        // if (!resp.modifiedCount) return res.status(500).send({error: 'update failed'})
-      }
+    const resp = await dbClient.updateOne('canvas', filter, 'points', payload)
 
-    })
-    if (err) return res.status(403).send({error: err})
+    if (!resp.modifiedCount) return res.status(403).send({error: 'no records changed'})
     return res.send({message: 'updated successfully'})
   }
 
@@ -180,7 +165,7 @@ class CanvasController {
     const canvasName = `${key}:${name}`
     const canvas = await CanvasController.findCanvas(canvasName)
     if (canvas) return res.status(403).send({error: 'canvas already exists'}) 
-    await dbClient.saveCanvas({name: canvasName, points: {}})
+    await dbClient.saveCanvas({name: canvasName, points: []})
     return res.status(201).send({name: name})    
   }
 
@@ -188,6 +173,15 @@ class CanvasController {
     if (!name) return null
     const canvas = await dbClient.findByColAndFilter('canvas', 'name', name)
     return canvas
+  }
+
+  static isValidateStackStructure(stack) {
+
+    // if (!Object.keys(stack).length) return false
+
+    // to implement
+
+    return true
   }
 }
 
