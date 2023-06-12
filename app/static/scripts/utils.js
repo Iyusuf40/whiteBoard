@@ -25,7 +25,7 @@ class Stack {
    * somestimes goes out of order - especially after passing
    * across internet in json string
    */
-  constructor(map=null) {  // new stack will be null while stack
+  constructor(map = null) {  // new stack will be null while stack
     //  rebuilding old stack will take in persisted map
     this.map = map ? map : {}
   }
@@ -40,9 +40,10 @@ class Stack {
 
   pop() {
     let key = this.len()
+    if (!key) return null
     let _data = this.copy(this.map[key])
-    if (!_data) return null
     delete this.map[key]
+    if (!_data) return null
     return _data
   }
 
@@ -83,11 +84,13 @@ function setMode(e) {
   if (!canvasReady) return
   const el = e.target
   const mode = el.getAttribute('action')
-  drawOpts.mode = modeButtons
+
   if (mode === 'nodraw') {
     setClass(el, 'light--red')
     clearClass(drawBtn, 'light--green')
     setCtxProps('do nothing')
+    globalPoints = []
+    pointsBuffer = []
   } else {
     setClass(el, 'light--green')
     clearClass(noDrawBtn, 'light--red')
@@ -100,16 +103,20 @@ function setCtxProps(mode) {
     let canvasContainer = document.getElementsByClassName('canvas--container')[0]
     ctx.strokeStyle = window.getComputedStyle(canvasContainer).backgroundColor
     ctx.lineWidth = 4
+    doNothing = false
   } else if (mode === 'draw') {
     ctx.strokeStyle = "red"
     ctx.lineWidth = 2
+    doNothing = false
   } else {
     ctx.lineWidth = 0
+    doNothing = true
   }
 }
 
 function handleUndoRedo(e) {
   const mode = e.target.getAttribute('action')
+  if (doNothing === true) return
   if (mode === 'undo') {
     handleMainStack('pop')
     currAction = { action: 'undo', payload: {} }
@@ -127,11 +134,13 @@ function handleMainStack(action, event = [], persist = false) {
   if (action === 'push') {
     if (event.length) mainStack.push(copy(event))
   } else if (action === 'pop') {
+    console.log('mainstack before mainstack pop --->', mainStack.self())
     let popped = mainStack.pop()
     if (popped) {
       drawAll(popped, 'erase')
       handleUndoStack('push', copy(popped))
     }
+    console.log('mainstack after mainstack pop --->', mainStack.self())
   } else {
     throw new Error('action cannot be carried out on stack')
   }
@@ -142,11 +151,13 @@ function handleUndoStack(action, event = [], persist = false) {
   if (action === 'push') {
     if (event.length) undoStack.push(copy(event))
   } else if (action === 'pop') {
+    console.log('mainstack before undostack pop --->', mainStack.self())
     let popped = undoStack.pop()
     if (popped) {
       drawAll(popped, 'draw')
       handleMainStack('push', copy(popped))
     }
+    console.log('mainstack after undostack pop --->', mainStack.self())
   } else {
     throw new Error('action cannot be carried out on stack')
   }
@@ -360,7 +371,6 @@ function createSocket() {
 
   socket.addEventListener('open', (event) => {
     console.log('socket opened')
-    // socket.send('Hello Server!');
   });
 
   socket.addEventListener('message', (event) => {
@@ -457,16 +467,11 @@ async function buildCanvas(name = null) {
   if (!cName) return alert('canvas name required to get canvas')
   const _canvas = await getCanvas()
   if (!_canvas) return alert(`canvas: ${cName} not found`)
-  // _canvas.points.forEach((point) => {
-  //   drawAll(point, 'draw', false)
-  //   handleMainStack('push', point, false)
-  // })
+
   let map = _canvas.points
   mainStack = new Stack(map)
-  console.log(_canvas, mainStack)
   mainStack.repr().forEach((point) => {
-      drawAll(point, 'draw', false)
-      handleMainStack('push', point, false)
+    drawAll(point, 'draw', false)
   })
 }
 
@@ -474,19 +479,13 @@ async function updateCanvasBE(payload) {
   /**
    * payload: a list of changes to apply in backend
    */
+  if (doNothing === true) return
   if (!key) return alert('you are not logged in')
   if (!canvasName) return alert('no canvas chosen')
-  // if (!Object.keys(payload.length)) return console.log('payload empty')
-  console.log('payload ucbe ->', payload)
   const url = baseUrl + `canvas_points/${key}`
   const changes = JSON.stringify({ payload, key, name: canvasName })
-  let res
-  try {
-    res = await putData(url, changes)
-  } catch (e) {
-    console.error(e)
-  }
-  
+  let res = await putData(url, changes)
+
   return res
 }
 
@@ -498,33 +497,21 @@ function handleMouseUp(e) {
   if (pointsBuffer.length) handleMainStack('push', [...pointsBuffer])
   let validEmptyStack = {}
   if (trackClick) {
-    updateCanvasBE(mainStack.len()? mainStack.self() : validEmptyStack)
+    updateCanvasBE(mainStack.len() ? mainStack.self() : validEmptyStack)
     trackClick = false
+    currAction = { action: 'draw', payload: mainStack.getTop() }
+    sendToSocket(currAction.action, currAction.payload)
   }
-  /**
-   * use currAction obj instead of pointsBuffer
-   * has ref to current points popped or pushed
-   * has action attribute
-   */
-  currAction = { action: 'draw', payload: mainStack.getTop() }
-  sendToSocket(currAction.action, currAction.payload)
+
   pointsBuffer = []  // end of contigious line
 }
 
-// function handleMouseDown(e) {
-//   trackClick = !trackClick
-// }
 
 function handleMouseDown(e) {
   trackClick = !trackClick
   pointsBuffer = []
 }
 
-// function handleTouchStart(e) {
-//   if (!allowTouchStart) return
-//   allowTouchStart = false
-//   trackClick = true
-// }
 
 function handleTouchStart(e) {
   if (!allowTouchStart) return
@@ -546,10 +533,10 @@ function handleSocketMessage(data) {
     handleMainStack('pop')
   } else if (action === 'redo') {
     handleUndoStack('pop')
-  } else if (action === 'draw'){
+  } else if (action === 'draw') {
     writeWrapper(payload)
   } else {
-    console.log('no handler for action')
+    alert('no handler for action: socket message')
   }
 }
 
@@ -592,7 +579,7 @@ function eraseWrapper(pointsList) {
 
 function writeWrapper(pointsList) {
   if (!pointsList || !pointsList.length) return console.log('pointsList is either missing or empty')
-  drawAll(pointsList, 'draw', false)
+  drawAll(copy(pointsList), 'draw', false)
   handleMainStack('push', pointsList, false)
   undoStack.clear()  // branch has moved forward 
 }
@@ -603,19 +590,6 @@ function erase(points) {
   points.splice(0, 1)
 }
 
-// function handleMouseMoveDraw(e) {
-//   if (!trackClick) {
-//     return
-//   }
-//   if (drawOpts.mode === 'draw') {
-//     const x = Math.floor(e.pageX)
-//     const y = Math.floor(e.pageY)
-
-//     globalPoints.push([x, y])
-
-//     if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
-//   }
-// }
 
 function handleMouseMoveDraw(e) {
   if (!trackClick) {
@@ -647,45 +621,30 @@ function handleTouchMoveDraw(e) {
 
   globalPoints.push([x, y])
 
-  // if (globalPoints.length > 1) drawPoints(canvas, globalPoints)
   if (globalPoints.length > 1) draw(globalPoints, true)
 }
 
-// function handleTouchMoveDraw(e) {
-//   if (!trackClick) {
-//     return
-//   }
-//   if (drawOpts.mode === 'draw') {
-//     const x = e.changedTouches[0].pageX - ofsetX
-//     const y = e.changedTouches[0].pageY - ofsetY
-
-//     globalPoints.push([x, y])
-
-//     if (globalPoints.length > 1) draw(globalPoints)
-//   }
-// }
-
-// function drawPoints(canvas, points) {
-//   const diff = [points[0], points[1]]
-//   connectTwoPoints(diff, canvas)
-//   points.splice(0, 1)
-// }
-
 function draw(points, persist = false) {
+  if (doNothing === true) return
   const diff = [points[0], points[1]]
   if (persist) {
-    pointsBuffer.push(diff)
+    pointsBuffer.push(copy(diff))  // we use copy to avoid diff to be changed
+    // later unknowingly
     undoStack.clear()  // new item will be pushed on mainstack, so redo
-    // doesn't pop a previous undo unto mainstack 
+    // doesn't pop a previous undo from a prevois branch unto mainstack 
+    points.splice(0, 1) // points hold reference to globalArrayPoints
+    // so it is necessary to shift the array forward after
+    // drawing a line, the splice here will remove the root
+    // coordinate of the previous line drawn since we dont need it
+    // anymore
   }
   connectTwoPoints(diff)
-  points.splice(0, 1)
 }
 
 function drawAll(points = [], mode, persist = false) {
   setCtxProps(mode)
-  let pointsCopy = copy(points)
-  pointsCopy.forEach((line) => {
+  if (doNothing === true) return
+  points.forEach((line) => {
     draw(line, persist)
   })
 }
@@ -695,6 +654,7 @@ function copy(arr) {
 }
 
 function sendToSocket(action, payload) {
+  if (doNothing === true) return
   if (!action) return console.log('action not specified')
   if (!socket) return console.log('no socket set')
   if (!payload) return console.log('payload not set')

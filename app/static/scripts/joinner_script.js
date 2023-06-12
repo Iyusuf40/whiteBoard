@@ -17,10 +17,6 @@ let ofsetY = 0
 const urButtons = document.getElementsByClassName('undoredo--buttons')
 
 
-let drawOpts = {
-  mode: ''
-}
-
 Array.from(modeButtons).forEach(function(el) {
   el.addEventListener('click', setMode)
   if (el.getAttribute('action') === 'draw') {
@@ -42,6 +38,7 @@ let socket = null
 const baseUrl = 'http://localhost:3000/'
 let socketCreated = false
 let trackClick = false
+let doNothing = true
 let globalPoints = []
 let pointsBuffer = []
 let globalElRepo = {}

@@ -18,9 +18,6 @@ let ofsetY = 0
 
 const urButtons = document.getElementsByClassName('undoredo--buttons')
 
-let drawOpts = {
-  mode: ''
-}
 
 Array.from(modeButtons).forEach(function(el) {
   el.addEventListener('click', setMode)
