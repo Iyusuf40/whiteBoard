@@ -4,22 +4,32 @@ const createRoomBtn = document.getElementById('create--wss')
 const modeButtons = document.getElementsByClassName('mode--buttons')
 const clearCanvasBtn = document.getElementById('clear--canvas')
 const startMediaBtn = document.getElementById('start--media')
-let eraseBtn
+let noDrawBtn
 let drawBtn
 let allowTouchStart = true
+let ctx
 
+let mainStack = new Stack()
+let undoStack = new Stack()
+let currDraw = []
 
-let drawOpts = {
-  mode: ''
-}
+let ofsetX = 0
+let ofsetY = 0
+
+const urButtons = document.getElementsByClassName('undoredo--buttons')
+
 
 Array.from(modeButtons).forEach(function(el) {
   el.addEventListener('click', setMode)
-  if (el.getAttribute('data-mode') === 'draw') {
+  if (el.getAttribute('action') === 'draw') {
     drawBtn = el
   } else {
-    eraseBtn = el
+    noDrawBtn = el
   }
+})
+
+Array.from(urButtons).forEach(function(el) {
+  el.addEventListener('click', handleUndoRedo)
 })
 
 
@@ -38,6 +48,8 @@ let roomCreated = false
 let startMedia = false
 let peerId = null
 let peers = {}
+let currAction = {}
+let canvasReady = false
 
 myPeer.on('open', (id) => peerId = id)
 

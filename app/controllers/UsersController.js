@@ -15,7 +15,7 @@ class UsersController {
       const key = v4()
       const newUser = {id, key, password: hashedPasswd}
       await dbClient.saveUser(newUser)
-      res.status(201).send({staus: 'success', key})
+      res.status(201).send({status: 'success', key})
     } else {
       res.status(500).send({error: 'storage unavailable'})
     }
