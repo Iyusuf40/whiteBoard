@@ -31,11 +31,17 @@
             </div>
             <div id="share--url"></div>
             <div class="mode--container">
-                <span class="mode--buttons" data-mode="erase">erase</span>
-                <span class="mode--buttons" data-mode="draw">draw</span>
+                <span class="mode--buttons no--display" action="nodraw">no draw</span>
+                <span class="mode--buttons no--display" action="draw">draw</span>
+                <span class="undoredo--buttons" action="undo">undo</span>
+                <span class="undoredo--buttons" action="redo">redo</span>
             </div>
         </div>
-        <div id="root"></div>
+        <div id="root">
+          <div class="canvas--container no--display">
+            <canvas id="canvas"></canvas>
+          </div>
+        </div>
       </div>
       <div id="media">
         <div id="video-grid"></div>

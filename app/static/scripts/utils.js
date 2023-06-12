@@ -84,13 +84,10 @@ function setMode(e) {
   if (!canvasReady) return
   const el = e.target
   const mode = el.getAttribute('action')
-
   if (mode === 'nodraw') {
     setClass(el, 'light--red')
     clearClass(drawBtn, 'light--green')
     setCtxProps('do nothing')
-    globalPoints = []
-    pointsBuffer = []
   } else {
     setClass(el, 'light--green')
     clearClass(noDrawBtn, 'light--red')
@@ -103,20 +100,16 @@ function setCtxProps(mode) {
     let canvasContainer = document.getElementsByClassName('canvas--container')[0]
     ctx.strokeStyle = window.getComputedStyle(canvasContainer).backgroundColor
     ctx.lineWidth = 4
-    doNothing = false
   } else if (mode === 'draw') {
     ctx.strokeStyle = "red"
     ctx.lineWidth = 2
-    doNothing = false
   } else {
     ctx.lineWidth = 0
-    doNothing = true
   }
 }
 
 function handleUndoRedo(e) {
   const mode = e.target.getAttribute('action')
-  if (doNothing === true) return
   if (mode === 'undo') {
     handleMainStack('pop')
     currAction = { action: 'undo', payload: {} }
@@ -134,13 +127,11 @@ function handleMainStack(action, event = [], persist = false) {
   if (action === 'push') {
     if (event.length) mainStack.push(copy(event))
   } else if (action === 'pop') {
-    console.log('mainstack before mainstack pop --->', mainStack.self())
     let popped = mainStack.pop()
     if (popped) {
       drawAll(popped, 'erase')
       handleUndoStack('push', copy(popped))
     }
-    console.log('mainstack after mainstack pop --->', mainStack.self())
   } else {
     throw new Error('action cannot be carried out on stack')
   }
@@ -151,13 +142,11 @@ function handleUndoStack(action, event = [], persist = false) {
   if (action === 'push') {
     if (event.length) undoStack.push(copy(event))
   } else if (action === 'pop') {
-    console.log('mainstack before undostack pop --->', mainStack.self())
     let popped = undoStack.pop()
     if (popped) {
       drawAll(popped, 'draw')
       handleMainStack('push', copy(popped))
     }
-    console.log('mainstack after undostack pop --->', mainStack.self())
   } else {
     throw new Error('action cannot be carried out on stack')
   }
@@ -426,6 +415,7 @@ function setupCanvas() {
   ofsetX = canvasContainer.getBoundingClientRect().left + window.scrollX
   ofsetY = canvasContainer.getBoundingClientRect().top + window.scrollY
   setUpCanvasCtx(canvasContainer)
+  setCtxProps('draw')
   canvas.setAttribute('isCanvas', 'true')
   canvas.addEventListener("mousedown", handleMouseDown);
   canvas.addEventListener("touchstart", handleTouchStart);
@@ -479,7 +469,6 @@ async function updateCanvasBE(payload) {
   /**
    * payload: a list of changes to apply in backend
    */
-  if (doNothing === true) return
   if (!key) return alert('you are not logged in')
   if (!canvasName) return alert('no canvas chosen')
   const url = baseUrl + `canvas_points/${key}`
@@ -625,7 +614,6 @@ function handleTouchMoveDraw(e) {
 }
 
 function draw(points, persist = false) {
-  if (doNothing === true) return
   const diff = [points[0], points[1]]
   if (persist) {
     pointsBuffer.push(copy(diff))  // we use copy to avoid diff to be changed
@@ -643,7 +631,6 @@ function draw(points, persist = false) {
 
 function drawAll(points = [], mode, persist = false) {
   setCtxProps(mode)
-  if (doNothing === true) return
   points.forEach((line) => {
     draw(line, persist)
   })
@@ -654,7 +641,6 @@ function copy(arr) {
 }
 
 function sendToSocket(action, payload) {
-  if (doNothing === true) return
   if (!action) return console.log('action not specified')
   if (!socket) return console.log('no socket set')
   if (!payload) return console.log('payload not set')
