@@ -39,6 +39,7 @@ let canvasName = null
 let canvas = null
 const baseUrl = 'http://localhost:3000/'
 let trackClick = false
+let doNothing = true
 let globalPoints = []
 let pointsBuffer = []
 let globalElRepo = {}
