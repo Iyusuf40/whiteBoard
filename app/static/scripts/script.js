@@ -39,6 +39,7 @@ let canvasName = null
 let canvas = null
 const baseUrl = 'https://collab.cloza.tech/'
 let trackClick = false
+let doNothing = true
 let globalPoints = []
 let pointsBuffer = []
 let globalElRepo = {}

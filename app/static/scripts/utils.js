@@ -629,11 +629,14 @@ function draw(points, persist = false) {
   connectTwoPoints(diff)
 }
 
-function drawAll(points = [], mode, persist = false) {
+function drawAll(points = [], mode='draw', persist = false) {
   setCtxProps(mode)
   points.forEach((line) => {
     draw(line, persist)
   })
+  setCtxProps('draw')  // allow draw even after erase
+  // if not set back to draw, after any erase action
+  // user will not be able to draw on canvas
 }
 
 function copy(arr) {
