@@ -350,7 +350,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('wss://collab.cloza.tech/ws/' + key);
+  socket = new WebSocket('wss://collab.cloza.org/ws/' + key);
 
   socketCreated = true
 
