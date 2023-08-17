@@ -8,7 +8,7 @@ ExecStart=/usr/bin/node server.js
 Type=simple
 User=ubuntu
 Group=ubuntu
-Environment=NODE_PORT=3000
+Environment=NODE_PORT=3001
 Restart=on-failure
 
 [Install]
