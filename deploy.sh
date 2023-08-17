@@ -2,5 +2,5 @@
 # deploys whiteboard app
 cd whiteBoard/app
 git checkout prod_test
-git pull
+git pull -f
 sudo service whiteboard restart
