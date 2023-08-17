@@ -4,7 +4,7 @@
 
 from fabric.api import *
 
-env.hosts = ["collab.cloza.tech"]
+env.hosts = ["collab.cloza.org"]
 
 def transfer_file(file_):
     """transfers files to server """
