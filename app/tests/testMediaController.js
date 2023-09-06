@@ -4,6 +4,7 @@ const request = require('request');
 const util = require('util');
 const dbClient = require('../utils/dbClient');
 const { emitKeypressEvents } = require('readline');
+const { getKey } = require('./helper')
 request.put = util.promisify(request.put)
 request.post = util.promisify(request.post)
 
@@ -12,25 +13,6 @@ after(() => {
 });
 
 const baseUrl = 'http://127.0.0.1:3000/'
-const user_cred = {
-  id: 1,
-  password: 'test'
-}
-
-async function getKey() {
-  let user = await request.post({
-    url: baseUrl + 'account',
-    json: true,
-    body: user_cred
-  })
-  if (user.body.status === 'success') return user.body.key;
-  user = await request.post({
-    url: baseUrl + 'login',
-    json: true,
-    body: user_cred
-  })
-  return user.body.key
-}
 
 describe('Tests for MediaController Api', function() {
   describe('Test for createMediaRoom', function() {

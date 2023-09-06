@@ -2,28 +2,32 @@
 <html>
   <head>
     <title>collab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/styles/landing_page_styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200&family=Montserrat&display=swap" rel="stylesheet">
   </head>
   <body>
       <nav>
+        <div id="logo" class="hand--pointer"></div>
         <div class="show--forms" id="create--acct--btn">
-            create account
+            sign up
         </div>
 
         <div class="show--forms" id="login--btn">
             login
         </div>
 
-        <div class="go--to--canvas" id="canvas--btn">
-            go to canvas
+        <div class="go--to--canvas show--forms" id="canvas--btn">
+            canvas
         </div>
       </nav>
 
       <div class="landing--container">
-        <h1 class="title">Express Your Mind!</h1>
         <form action="" class="gen--form" id="create--act--form">
           <span class="remove--form">x</span>
           <div class="form--field">
@@ -53,51 +57,28 @@
             <input type="submit" value="login">
           </div>
         </form>
-        <div class="banner"></div>
-        <div>
-            <section>
-                <p>
-                    Often, You have the need to share a written demonstration of the 
-                    information you wish to pass, but your peer(s) live far away and 
-                    video calls are not sufficient to whollistially convey the
-                    message; Collab helps you achieve this.
-                </p>
-                <p>
-                    with Collab, you can have a video conference with a shared board where
-                    every peer has access to the board and can make annotations on it.
-                </p>
-            </section>
-            <section class="about">
-                <p>
-                    The idea for this project was born when its co-developers realized they
-                    needed a board to share design ideas visually and live while communicating.
-                </p>
-                <p>
-                    There are solutions already for this, but some have caps on communication
-                    time while others require payment for group communications.
-                    We decided to build a simple version to solve our problem as our final project
-                    at ALX software enginnering course.
-                </p>
-                <p>
-                    Developers:
-                    <ul>
-                        <li>Yusuf Isyaku
-                            <address>
-                            Mail: <a href="mailto: isyakuyusuf@outlook.com"
-                                target="blank">isyakuyusuf@outlook.com</a> <br/>
-                            </address>
-                        </li>
-                        <li>Valentine Chidubem
-                            <address>
-                                Mail: <a href="mailto: vchidubem9@gmail.com"
-                                    target="blank">vchidubem9@gmail.com</a> <br/>
-                            </address>
-                        </li>
-                    </ul>
-                </p>
-            </section>
-        </div>
+        <section class="banner">
+          <div class="hero">
+            <img src="../images/hero.png" alt="hero">
+          </div>
+          <div class="angular--sides center--content">
+            <p class="section--desc">
+              Often you want to draw out your ideas <br>
+              during conversation with a peer, <br>
+              but distance is a barrier. <br>
+            </p>
+            <p class="section--desc">
+              Collab helps you achieve that by <br>
+              providing a platform for video <br>
+              conferencing and a shared canvas for  <br>
+              sharing your ideas.
+            </p>
+          </div>
+        </section>
       </div>
+      <footer>
+
+      </footer>
       <script src="/scripts/landing_page_script.js"></script>
   </body>
 </html>
