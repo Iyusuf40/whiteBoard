@@ -67,6 +67,15 @@ nav > div:hover {
   cursor: pointer;
 }
 
+.landing--container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
 section {
   display: flex;
   justify-content: center;
@@ -76,7 +85,7 @@ section {
 }
 
 .angular--sides {
-  width: 40%;
+  width: 60%;
   height: 60%;
   background-color: rgba(108, 240, 121, 0.4);
   border-top-left-radius: 2.5rem;
@@ -109,6 +118,13 @@ section {
   letter-spacing: .08rem;
 }
 
+.bottom--border {
+  width: 80%;
+  height: 2px;
+  background-color: #A8D3BE;
+  justify-self: center;
+}
+
 .gen--form {
   margin: 5px 0;
   border: 1px solid black;
@@ -136,11 +152,6 @@ section {
   color: red;
   font-size: 1.3em;
   cursor: pointer;
-}
-
-
-.landing--container {
-  height: 100%;
 }
 
 .title {
