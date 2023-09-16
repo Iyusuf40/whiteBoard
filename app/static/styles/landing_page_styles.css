@@ -71,16 +71,19 @@ nav > div:hover {
   height: 100%;
   width: 100%;
   display: flex;
+  margin: auto;
   flex-direction: column;
   align-items: center;
+  width: 80%
 }
 
 
-section {
+.banner {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 35rem;
+  width: 80%;
   gap: 2rem;
 }
 
@@ -90,6 +93,10 @@ section {
   background-color: rgba(108, 240, 121, 0.4);
   border-top-left-radius: 2.5rem;
   border-bottom-right-radius: 2.5rem;
+}
+
+.angular--sides > p {
+  width: 90%;
 }
 
 .hero {
@@ -110,9 +117,22 @@ section {
   justify-content: center;
 }
 
+.center--content--horizontally {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center--content--vertically {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .section--desc {
   font-family: 'jetBrains Mono' monospace;
-  font-size: 1.3rem;
+  /* font-size: 1.3rem; */
+  font-size: 1.6vw; /*  make resp */
   color: #007A0C;
   line-height: 1.8rem;
   letter-spacing: .08rem;
@@ -123,6 +143,62 @@ section {
   height: 2px;
   background-color: #A8D3BE;
   justify-self: center;
+}
+
+/* footer */
+
+footer {
+  font-family: 'jetBrains Mono' monospace;
+  background-color: #369869;
+  height: 35rem;
+}
+
+.footer--container {
+  margin: auto;
+  height: 100%;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  /* gap: .2rem; */
+}
+
+.white--bg {
+  background-color: #FFF;
+  color: #000;
+}
+
+.dev--label {
+  width: 35%;
+  height: 12%;
+  font-size: 2rem;
+}
+
+.dev--details {
+  background-color: #12E400;
+  color: rgba(16, 37, 220, 0.9);
+  line-height: 1.2rem;
+  letter-spacing: 0.1rem;
+  width: 48%;
+  height: 100%;
+  /* padding-left: 2rem; */
+}
+
+.dev--details > * {
+  width: 85%;
+  margin: .3rem auto;
+}
+
+.dev--details--container {
+  justify-content: space-between;
+  height: 35%;
+}
+
+.copyright {
+  width: 35%;
+  height: 10%;
+  font-size: 1rem;
+  gap: 0.2rem;
 }
 
 .gen--form {
