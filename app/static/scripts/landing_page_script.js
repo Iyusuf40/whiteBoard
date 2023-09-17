@@ -4,6 +4,7 @@ const showCreateActForm = document.getElementById('create--acct--btn')
 const showLoginActForm = document.getElementById('login--btn')
 const goToCanvas = document.getElementById('canvas--btn')
 const removeFormBtns = document.getElementsByClassName('remove--form')
+const blur = document.getElementById('blur')
 
 
 let key = null
@@ -35,13 +36,19 @@ loginForm.addEventListener('submit', handleLoginSubmit)
 showCreateActForm.addEventListener('click', showActForm)
 showLoginActForm.addEventListener('click', showLoginForm)
 goToCanvas.addEventListener('click', handleGoToCanvas)
+blur.addEventListener('click', hideAll)
 
 Array.from(removeFormBtns).forEach((btn) => {
   btn.addEventListener('click', () => {
-    hideActForm()
-    hideLoginForm()
+    hideAll()
   })
 })
+
+function hideAll() {
+  hideActForm()
+  hideLoginForm()
+  hideBlur()
+}
 
 async function handleCreateAcct(e) {
   e.preventDefault()
@@ -54,6 +61,7 @@ async function handleCreateAcct(e) {
     key = data.key
     alert('account create success')
     hideActForm()
+    hideBlur()
   } else if (data.error) {
     alert (data.error)
   } else {
@@ -72,6 +80,7 @@ async function handleLoginSubmit(e) {
     key = data.key
     alert('login successful')
     hideLoginForm()
+    hideBlur()
   } else if (data.error) {
     alert (data.error)
   } else {
@@ -89,11 +98,13 @@ function handleGoToCanvas() {
 
 function showActForm() {
   hideLoginForm()
+  showBlur()
   createAccountForm.style.display = 'block'
 }
 
 function showLoginForm() {
   hideActForm()
+  showBlur()
   loginForm.style.display = 'block'
 }
 
@@ -103,6 +114,14 @@ function hideActForm() {
 
 function hideLoginForm() {
   loginForm.style.display = 'none'
+}
+
+function hideBlur() {
+  blur.style.display = 'none'
+}
+
+function showBlur() {
+  blur.style.display = 'block'
 }
 
 async function postData(url, data) {
