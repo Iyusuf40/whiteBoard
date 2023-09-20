@@ -11,9 +11,9 @@ body {
   /* font-family: 'Montserrat'; */
 }
 
-#landing--container {
+/* #landing--container {
   margin: 20px;
-}
+} */
 
 .title {
 	color: #5C6AC4;
@@ -26,13 +26,12 @@ body {
 nav {
   display: flex;
   background-color: #369869;
-  height: 12rem;
-  line-height: 12rem;
-  padding: 4px 0;
+  height: 15vw;
+  line-height: 15vw;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  padding: 0 7rem;
+  gap: 1vw;
+  padding: 0 5vw;
 }
 
 #logo {
@@ -51,7 +50,7 @@ nav {
   background-color: #12E400;
   border-radius: 21px;
   color: #1025DC;
-  width: 20%;
+  width: 15vw;
   height: 25%;
   text-align: center;
   cursor: pointer;

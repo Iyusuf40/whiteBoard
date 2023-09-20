@@ -5,49 +5,79 @@
     <link rel="stylesheet" href="/styles/styles.css" />
   </head>
   <body>
-      <h1 class="title">Hello, canvas! </h1>
+
       <div id="container">
+
         <div id="sidepane">
+
             <div id="key" class="no--display"><%= key %></div>
+
+            <div class="show--hide--buttons">
+              <img src="/images/plus_sign.png" alt="show buttons" 
+                class="toggle--show--buttons plus--sign no--display">
+              <img src="/images/minus_sign.png" alt="hide buttons" 
+                class="toggle--show--buttons minus--sign">
+            </div>
             <form action="" class="gen--form" id="create--canvas--form">
               <div class="">
-                <label for="create--canvas--form">Enter canvas name: </label>
-                <input type="text" name="create--canvas--form" id='create--canvas--form--val' required>
+                <input 
+                  type="text" name="create--canvas--form" 
+                  id='create--canvas--form--val'
+                  class="text--field"
+                  placeholder="Enter canvas name"
+                  required
+                >
                 </div>
-                <div class="">
-                <input type="submit" value="create canvas">
-              </div>
+                <div class="sidepane--btns collapsable">
+                  <input type="submit" value="create canvas">
+                </div>
             </form>
 
-            <div class="create--wss">
+            <div class="sidepane--btns collapsable">
                 <input type="button" value="create room" id="create--wss">
             </div>
 
-            <div class="create--wss">
+            <div class="sidepane--btns collapsable">
                 <input type="button" value="clear canvas" id="clear--canvas">
             </div>
-            <div class="create--wss">
+            <div class="sidepane--btns collapsable">
                 <input type="button" value="start media" id="start--media">
             </div>
-            <div id="share--url"></div>
-            <div class="mode--container">
-                <span class="mode--buttons no--display" action="nodraw">no draw</span>
-                <span class="mode--buttons no--display" action="draw">draw</span>
-                <span class="undoredo--buttons" action="undo">undo</span>
-                <span class="undoredo--buttons" action="redo">redo</span>
+
+            <div class="sidepane--btns undoredo--buttons">
+              <input type="button" value="undo" action="undo">
             </div>
+
+            <div class="sidepane--btns undoredo--buttons">
+                <input type="button" value="redo" action="redo">
+            </div>
+
+            <div id="share--url" class="text--field">
+              <img src="/svg/copy-regular.svg" 
+                alt="copy icon" id="copy--icon"
+                height="24px" width="24px">
+            </div>
+            
         </div>
+
         <div id="root">
           <div class="canvas--container no--display">
             <canvas id="canvas"></canvas>
           </div>
         </div>
       </div>
+
+
       <div id="media">
+        <div class="media--btns--container">
+          <button id="myBtn">Toggle Audio</button>
+          <button id="myBtn-v">Toggle Video</button>
+        </div>
+        
         <div id="video-grid"></div>
-        <button id="myBtn">Toggle Audio</button>
-        <button id="myBtn-v">Toggle Video</button>
       </div>
+
+
       <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
       <script src="/scripts/utils.js"></script>
       <script src="/scripts/script.js"></script>

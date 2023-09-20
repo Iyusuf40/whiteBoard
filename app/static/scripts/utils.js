@@ -269,6 +269,18 @@ async function handleStartMedia(e) {
   } else console.log('Already connected')
 }
 
+function showCollapsable() {
+  Array.from(collapsable).forEach(function(el) {
+    el.classList.remove("no--display")
+  })
+}
+
+function hideCollapsable() {
+  Array.from(collapsable).forEach(function(el) {
+    el.classList.add("no--display")
+  })
+}
+
 async function getRoomMembers() {
   if (!key) return alert('room key not set')
   if (!peerId) return alert('peerId not set, please try again')
@@ -350,7 +362,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('wss://collab.cloza.org/ws/' + key);
+  socket = new WebSocket('ws://localhost:3001/ws/' + key);
 
   socketCreated = true
 
@@ -383,8 +395,12 @@ function setSharedUrl(key) {
   if (!key) return alert('you are not logged in')
   if (!canvasName) return alert('canvas not created')
   const urlDiv = document.getElementById('share--url')
+  // TODO: display copy icon
+  const copyIcon = document.getElementById("copy--icon")
   urlDiv.innerText = baseUrl + `join/${key}/${canvasName}`
   urlDiv.style.display = 'block'
+  copyIcon.style.display = 'block'
+  console.log(copyIcon)
 }
 
 /**
@@ -412,6 +428,9 @@ function setupCanvas() {
 
   clearClass(canvasContainer, 'no--display')
 
+  // ofsetX and Y shifts the draw point to precisely where is touched as there
+  // there is a small distance between window edge and canvascontainer
+  // window.scrollX and Y are most times 0, just here for edge cases
   ofsetX = canvasContainer.getBoundingClientRect().left + window.scrollX
   ofsetY = canvasContainer.getBoundingClientRect().top + window.scrollY
   setUpCanvasCtx(canvasContainer)
@@ -427,6 +446,10 @@ function setupCanvas() {
 
   root.appendChild(canvasContainer)
 
+  // scroll to middle of canvas
+  const midX = (canvasContainer.getBoundingClientRect().width / 2) - (window.innerWidth / 2)
+  const midY = (canvasContainer.getBoundingClientRect().height / 2) - (window.innerHeight / 2)
+  window.scrollTo(midX, midY)
   canvasReady = true
 }
 

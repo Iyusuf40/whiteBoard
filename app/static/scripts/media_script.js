@@ -55,29 +55,24 @@ function answerCall(stream) {
 		const video = document.createElement('video')
 		call.on('stream', userVideoStream => {
 			addVideoStream(video, userVideoStream, call);
-			console.log('Stream is called')
 		})
 	})
 }
 
 function ToggleVideo() {
 	if (localStream.getVideoTracks()[0].enabled) {
-		console.log('Offing the Video')
 		localStream.getVideoTracks()[0].enabled = false
 	}
 	else if (!localStream.getVideoTracks()[0].enabled){
-		console.log('Oning the video')
 		localStream.getVideoTracks()[0].enabled = true
 	}
 }
 
 function ToggleAudio() {
 	if (localStream.getAudioTracks()[0].enabled) {
-		console.log('Offing the mic')
 		localStream.getAudioTracks()[0].enabled = false
 	}
 	else if (!localStream.getAudioTracks()[0].enabled){
-		console.log('Oning the mic')
 		localStream.getAudioTracks()[0].enabled = true
 	}
 }
