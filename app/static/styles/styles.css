@@ -3,11 +3,12 @@
 }
 
 body{
-  padding: 25px;
-  background-color: rgba(209, 208, 204, 0.6);
+  background-color: #fff;
   height: 100%;
   overflow-y: auto;
 }
+
+
 .title {
 	color: #5C6AC4;
 }
@@ -21,8 +22,22 @@ body{
 }
 
 #sidepane {
-  max-width: 200px;
-  min-width: 200px;
+  position: fixed;
+  margin-left: 3%;
+  margin-top: 3%;
+  background-color: rgba(223, 224, 234, 0.4);
+  width: 15%;
+  border-radius: 5px;
+  padding: .5rem;
+}
+
+.show--hide--buttons {
+  width: 20%;
+}
+
+.toggle--show--buttons {
+  object-fit: cover;
+  max-width: 100%;
 }
 
 .gen--form,
@@ -30,93 +45,158 @@ input {
   margin: 5px 0;
 }
 
-span {
-  margin: 0;
-  padding: 0;
-  font-size: 2px;
-  display: inline-block;
-  height: 3px;
-  width: 3px;
-  border-radius: 50%;
-  background-color: red;
+.text--field {
+  width: 100%;
+  border-radius: 5px;
+  font-family: monospace;
+}
+
+.sidepane--btns > input {
+  display: block;
+  width: 70%;
+  height: 1.4rem;
+  background-color: #12E400;
+  font-family: monospace;
+  font-size: 1vw;
+  color: #1025DC;
+  border-radius: 5px;
+  border: none;
+}
+
+#share--url {
+  display: none;
+  width: 100%;
+  height: 1.4rem;
+  overflow: hidden;
+  border: 1px solid black;
+  border-radius: 5px;
+  text-overflow: clip;
+  padding: .1rem;
+}
+
+/* TODO: why is this not showing? */
+#copy--icon {
+  display: block;
+  z-index: 2;
   position: absolute;
-}
-
-.mode--buttons, .undoredo--buttons {
-  color: black;
-  /* display: inline-block; */
-  border: 1px solid blue;
-  position: relative;
-  background-color: aliceblue;
-  margin: 20px;
+  top: 0;
+  left: 0;
+  background-color: red;
   width: 100px;
-  height: 40px;
-  border-radius: 10px;
-  font-size: 1.2rem;
-  text-align: center;
-  line-height: 40px;
-  cursor: pointer;
+  height: 100px;
+  /* object-fit: cover; */
 }
 
-.mode--buttons:hover {
-  background-color: blue;
-}
 
 .canvas--container {
   font-size: 0px;
   line-height: 0;
   clear: both;
-  background-color: rgb(233, 233, 233);
-  width: 1000px;
-  height: 1000px;
+  background-color: #fff;
+  width: 3000px;
+  height: 3000px;
   margin: 0;
   padding: 0;
   border-radius: 10px;
   border: 1px solid rgba(0, 0, 0, 0.4);
 }
 
-#video-grid {
-  display: grid;
-  /* overflow-y: scroll; */
-  right: 0;
-  top: 0;
-  grid-template-columns: repeat(auto-fill, 200px);
-  grid-auto-rows: 200px;
+.hand--pointer {
+  cursor: pointer;
+}
+
+#color--picker {
+  position: fixed;
+  top: 1rem;
+  left: calc(50vw - 5rem);
+  width: 10rem;
+  height: 1.5rem;
+  /* display: flex; */
+  justify-content: space-between;
+}
+
+#color--picker > * {
+  height: 2rem;
+  width: 2rem;
+  border-radius: 2rem;
+}
+
+.red--bg {
+  background-color: red;
+}
+
+.black--bg {
+  background-color: black;
+}
+
+.blue--bg {
+  background-color: blue;
+}
+
+.green--bg {
+  background-color: green;
 }
 
 #media {
-  position: absolute;
+  position: fixed;
+  width: 15%;
+  margin-right: 3%;
+  margin-top: 3%;
   overflow-y: auto;
   right: 0;
-  top: 110px;
+  top: 0;
+}
+
+/* TODO: handle overflow */
+#video-grid {
+  display: grid;
+  /* overflow-y: auto; */
+  right: 0;
+  top: 0;
+  grid-template-columns: repeat(auto-fill, 100%);
+  grid-gap: 1rem;
 }
 
 video {
+  display: block;
   width: 100%;
-  height: 100%;
   object-fit: cover;
-  padding: 3px;
-  border-radius: 3px;
+  border-radius: 10px;
+}
+
+.media--btns--container {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  margin: auto;
 }
 
 #myBtn,
 #myBtn-v {
-  width: 100px;
-  height: 30px;
+  width: 48%;
+  height: 1.5rem;
   display: none;
   cursor: pointer;
+  border: none;
+  font-family: monospace;
+  font-size: 0.8vw;
+  background-color: #E4B3B3;
+  color: #1025DC;
+  border-radius: 10px;
+  margin-bottom: .7em;
 }
 
-#share--url {
-  display: none;
-  width: 90%;
-  overflow: scroll;
+/* scroll bar */
+::-webkit-scrollbar {
+  width: .5vw;
+  height: .5vw;
 }
 
-.light--red {
-  background-color: rgba(242, 47, 47, 0.5);
+::-webkit-scrollbar-track {
+  background-color: #fff;
 }
 
-.light--green {
-  background-color: rgba(6, 248, 27, 0.5);
+::-webkit-scrollbar-thumb {
+  background-color: rgb(167, 166, 166);
+  border-radius: 10px;
 }

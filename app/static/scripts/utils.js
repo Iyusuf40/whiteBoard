@@ -97,9 +97,7 @@ function setMode(e) {
 
 function setCtxProps(mode) {
   if (mode === 'erase') {
-    let canvasContainer = document.getElementsByClassName('canvas--container')[0]
-    ctx.strokeStyle = window.getComputedStyle(canvasContainer).backgroundColor
-    ctx.lineWidth = 4
+    
   } else if (mode === 'draw') {
     ctx.strokeStyle = "red"
     ctx.lineWidth = 2
@@ -226,9 +224,7 @@ async function sendClearCanvasToBE(e) {
 }
 
 function clearCanvas() {
-  for (const line of mainStack.repr()) {
-    drawAll(line, 'erase', false)
-  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
   undoStack.clear()
   mainStack.clear()
 }
@@ -267,6 +263,18 @@ async function handleStartMedia(e) {
     }
     startMedia = true;
   } else console.log('Already connected')
+}
+
+function showCollapsable() {
+  Array.from(collapsable).forEach(function(el) {
+    el.classList.remove("no--display")
+  })
+}
+
+function hideCollapsable() {
+  Array.from(collapsable).forEach(function(el) {
+    el.classList.add("no--display")
+  })
 }
 
 async function getRoomMembers() {
@@ -350,7 +358,7 @@ function createSocket() {
 
   if (socketCreated) return
 
-  socket = new WebSocket('ws://localhost:3000/' + key);
+  socket = new WebSocket('ws://localhost:3001/ws/' + key);
 
   socketCreated = true
 
@@ -383,8 +391,12 @@ function setSharedUrl(key) {
   if (!key) return alert('you are not logged in')
   if (!canvasName) return alert('canvas not created')
   const urlDiv = document.getElementById('share--url')
+  // TODO: display copy icon
+  const copyIcon = document.getElementById("copy--icon")
   urlDiv.innerText = baseUrl + `join/${key}/${canvasName}`
   urlDiv.style.display = 'block'
+  copyIcon.style.display = 'block'
+  console.log(copyIcon)
 }
 
 /**
@@ -412,6 +424,9 @@ function setupCanvas() {
 
   clearClass(canvasContainer, 'no--display')
 
+  // ofsetX and Y shifts the draw point to precisely where is touched as there
+  // there is a small distance between window edge and canvascontainer
+  // window.scrollX and Y are most times 0, just here for edge cases
   ofsetX = canvasContainer.getBoundingClientRect().left + window.scrollX
   ofsetY = canvasContainer.getBoundingClientRect().top + window.scrollY
   setUpCanvasCtx(canvasContainer)
@@ -427,6 +442,14 @@ function setupCanvas() {
 
   root.appendChild(canvasContainer)
 
+  // show color picker
+  colorPickerContainer.classList.remove("no--display")
+  colorPickerContainer.style.display = "flex"
+
+  // scroll to middle of canvas
+  const midX = (canvasContainer.getBoundingClientRect().width / 2) - (window.innerWidth / 2)
+  const midY = (canvasContainer.getBoundingClientRect().height / 2) - (window.innerHeight / 2)
+  window.scrollTo(midX, midY)
   canvasReady = true
 }
 
@@ -552,6 +575,11 @@ function connectTwoPoints(pointsArr) {
   let x2 = pointsArr[1][0]
   let y1 = pointsArr[0][1]
   let y2 = pointsArr[1][1]
+  let opts = pointsArr[0][2]
+
+  if (opts) {
+    ctx.strokeStyle = opts.color
+  }
 
   ctx.beginPath()
   ctx.moveTo(x1, y1)
@@ -587,7 +615,8 @@ function handleMouseMoveDraw(e) {
   const x = e.pageX - ofsetX
   const y = e.pageY - ofsetY
 
-  globalPoints.push([x, y])
+  const opts = {color: ctx.strokeStyle}
+  globalPoints.push([x, y, opts])
   if (globalPoints.length > 1) draw(globalPoints, true)
 }
 
@@ -608,7 +637,8 @@ function handleTouchMoveDraw(e) {
     return
   }
 
-  globalPoints.push([x, y])
+  const opts = {color: ctx.strokeStyle}
+  globalPoints.push([x, y, opts])
 
   if (globalPoints.length > 1) draw(globalPoints, true)
 }
@@ -619,7 +649,7 @@ function draw(points, persist = false) {
     pointsBuffer.push(copy(diff))  // we use copy to avoid diff to be changed
     // later unknowingly
     undoStack.clear()  // new item will be pushed on mainstack, so redo
-    // doesn't pop a previous undo from a prevois branch unto mainstack 
+    // doesn't pop a previous undo from a previouss branch unto mainstack 
     points.splice(0, 1) // points hold reference to globalArrayPoints
     // so it is necessary to shift the array forward after
     // drawing a line, the splice here will remove the root

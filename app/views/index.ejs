@@ -5,36 +5,54 @@
     <link rel="stylesheet" href="/styles/styles.css" />
   </head>
   <body>
-      <h1 class="title">Hello, canvas! </h1>
 
       <div id="container">
         <div id="sidepane">
-          <div class="create--wss">
-            <input type="button" value="clear canvas" id="clear--canvas">
+
+          <div class="sidepane--btns collapsable">
+              <input type="button" value="clear canvas" id="clear--canvas">
           </div>
-          <div class="create--wss">
-            <input type="button" value="start media" id="start--media">
+          <div class="sidepane--btns collapsable">
+              <input type="button" value="start media" id="start--media">
           </div>
+
           <div id="key" class="no--display"><%= key %></div>
           <div id="canvasName" class="no--display"><%= canvas %></div>
-          <div class="mode--container">
-            <span class="mode--buttons no--display" action="nodraw">no draw</span>
-            <span class="mode--buttons no--display" action="draw">draw</span>
-            <span class="undoredo--buttons" action="undo">undo</span>
-            <span class="undoredo--buttons" action="redo">redo</span>
+
+          <div class="sidepane--btns undoredo--buttons">
+            <input type="button" value="undo" action="undo">
           </div>
+
+          <div class="sidepane--btns undoredo--buttons">
+              <input type="button" value="redo" action="redo">
+          </div>
+
         </div>
+
+        <div id="color--picker">
+          <div value="red" class="hand--pointer red--bg colors"></div>
+          <div value="blue" class="hand--pointer blue--bg colors"></div>
+          <div value="black" class="hand--pointer black--bg colors"></div>
+          <div value="green" class="hand--pointer green--bg colors"></div>
+        </div>
+
         <div id="root">
           <div class="canvas--container no--display">
             <canvas id="canvas"></canvas>
           </div>
         </div>
       </div>
+
       <div id="media">
+
+        <div class="media--btns--container">
+          <button id="myBtn">Toggle Audio</button>
+          <button id="myBtn-v">Toggle Video</button>
+        </div>
+        
         <div id="video-grid"></div>
-        <button id="myBtn">Toggle Audio</button>
-        <button id="myBtn-v">Toggle Video</button>
       </div>
+
       <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
       <script src="/scripts/utils.js"></script>
       <script src="/scripts/joinner_script.js"></script>
