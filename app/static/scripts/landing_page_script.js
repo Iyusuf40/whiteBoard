@@ -8,7 +8,7 @@ const blur = document.getElementById('blur')
 
 
 let key = null
-const baseUrl = 'http://localhost:3001/'
+const baseUrl = 'https://collab.cloza.org/'
 
 const postOpt = {
   method: "POST",
