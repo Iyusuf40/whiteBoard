@@ -127,7 +127,11 @@ function handleMainStack(action, event = [], persist = false) {
   } else if (action === 'pop') {
     let popped = mainStack.pop()
     if (popped) {
-      drawAll(popped, 'erase')
+      // drawAll(popped, 'erase')
+      clearCanvas(false)
+      mainStack.repr().forEach((point) => {
+        drawAll(point, 'draw', false)
+      })
       handleUndoStack('push', copy(popped))
     }
   } else {
@@ -223,10 +227,12 @@ async function sendClearCanvasToBE(e) {
   clearCanvas()
 }
 
-function clearCanvas() {
+function clearCanvas(clearStack = true) {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  undoStack.clear()
-  mainStack.clear()
+  if (clearStack) {
+    undoStack.clear()
+    mainStack.clear()
+  }
 }
 
 async function handleCreateWss(e) {
