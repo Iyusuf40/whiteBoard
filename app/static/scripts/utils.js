@@ -97,9 +97,7 @@ function setMode(e) {
 
 function setCtxProps(mode) {
   if (mode === 'erase') {
-    let canvasContainer = document.getElementsByClassName('canvas--container')[0]
-    ctx.strokeStyle = window.getComputedStyle(canvasContainer).backgroundColor
-    ctx.lineWidth = 4
+    
   } else if (mode === 'draw') {
     ctx.strokeStyle = "red"
     ctx.lineWidth = 2
@@ -226,9 +224,7 @@ async function sendClearCanvasToBE(e) {
 }
 
 function clearCanvas() {
-  for (const line of mainStack.repr()) {
-    drawAll(line, 'erase', false)
-  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
   undoStack.clear()
   mainStack.clear()
 }
@@ -446,6 +442,10 @@ function setupCanvas() {
 
   root.appendChild(canvasContainer)
 
+  // show color picker
+  colorPickerContainer.classList.remove("no--display")
+  colorPickerContainer.style.display = "flex"
+
   // scroll to middle of canvas
   const midX = (canvasContainer.getBoundingClientRect().width / 2) - (window.innerWidth / 2)
   const midY = (canvasContainer.getBoundingClientRect().height / 2) - (window.innerHeight / 2)
@@ -575,6 +575,11 @@ function connectTwoPoints(pointsArr) {
   let x2 = pointsArr[1][0]
   let y1 = pointsArr[0][1]
   let y2 = pointsArr[1][1]
+  let opts = pointsArr[0][2]
+
+  if (opts) {
+    ctx.strokeStyle = opts.color
+  }
 
   ctx.beginPath()
   ctx.moveTo(x1, y1)
@@ -610,7 +615,8 @@ function handleMouseMoveDraw(e) {
   const x = e.pageX - ofsetX
   const y = e.pageY - ofsetY
 
-  globalPoints.push([x, y])
+  const opts = {color: ctx.strokeStyle}
+  globalPoints.push([x, y, opts])
   if (globalPoints.length > 1) draw(globalPoints, true)
 }
 
@@ -631,7 +637,8 @@ function handleTouchMoveDraw(e) {
     return
   }
 
-  globalPoints.push([x, y])
+  const opts = {color: ctx.strokeStyle}
+  globalPoints.push([x, y, opts])
 
   if (globalPoints.length > 1) draw(globalPoints, true)
 }
@@ -642,7 +649,7 @@ function draw(points, persist = false) {
     pointsBuffer.push(copy(diff))  // we use copy to avoid diff to be changed
     // later unknowingly
     undoStack.clear()  // new item will be pushed on mainstack, so redo
-    // doesn't pop a previous undo from a prevois branch unto mainstack 
+    // doesn't pop a previous undo from a previouss branch unto mainstack 
     points.splice(0, 1) // points hold reference to globalArrayPoints
     // so it is necessary to shift the array forward after
     // drawing a line, the splice here will remove the root

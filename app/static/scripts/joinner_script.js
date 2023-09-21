@@ -2,6 +2,8 @@ const root = document.getElementById('root')
 const modeButtons = document.getElementsByClassName('mode--buttons')
 const clearCanvasBtn = document.getElementById('clear--canvas')
 const startMediaBtn = document.getElementById('start--media')
+const colorPickerContainer = document.getElementById("color--picker")
+const colors = document.getElementsByClassName("colors")
 let noDrawBtn
 let drawBtn
 let allowTouchStart = true
@@ -28,6 +30,14 @@ Array.from(modeButtons).forEach(function(el) {
 
 Array.from(urButtons).forEach(function(el) {
   el.addEventListener('click', handleUndoRedo)
+})
+
+
+Array.from(colors).forEach(function(el) {
+  el.addEventListener("click", function() {
+    const val = el.getAttribute("value")
+    ctx.strokeStyle = val
+  })
 })
 
 

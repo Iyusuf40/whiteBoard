@@ -6,6 +6,8 @@ const urButtons = document.getElementsByClassName('undoredo--buttons')
 const clearCanvasBtn = document.getElementById('clear--canvas')
 const startMediaBtn = document.getElementById('start--media')
 const collapsable = document.getElementsByClassName("collapsable")
+const colorPickerContainer = document.getElementById("color--picker")
+const colors = document.getElementsByClassName("colors")
 
 let noDrawBtn
 let drawBtn
@@ -45,6 +47,13 @@ Array.from(toggleShowBtns).forEach(function(el) {
   })
 })
 
+
+Array.from(colors).forEach(function(el) {
+  el.addEventListener("click", function() {
+    const val = el.getAttribute("value")
+    ctx.strokeStyle = val
+  })
+})
 
 let key = null
 let socket = null
