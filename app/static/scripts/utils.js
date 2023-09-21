@@ -127,12 +127,15 @@ function handleMainStack(action, event = [], persist = false) {
   } else if (action === 'pop') {
     let popped = mainStack.pop()
     if (popped) {
-      // drawAll(popped, 'erase')
+      // save style
+      const currColor = ctx.strokeStyle
       clearCanvas(false)
       mainStack.repr().forEach((point) => {
         drawAll(point, 'draw', false)
       })
       handleUndoStack('push', copy(popped))
+      // restore style
+      ctx.strokeStyle = currColor
     }
   } else {
     throw new Error('action cannot be carried out on stack')
