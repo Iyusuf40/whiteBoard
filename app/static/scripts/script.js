@@ -74,14 +74,15 @@ let peers = {}
 let currAction = {}
 let canvasReady = false
 
-myPeer.on('open', (id) => peerId = id)
+myPeer.on('open', (id) => {
+  peerId = id
+  console.log("connected to peerjs server")
+})
 
 myPeer.on('error', function(err) { console.log(err, "\n============\n", err.type) })
 
 // set peerId incase 'open' event fails to fire
-setTimeout(() => {
-  peerId = myPeer._id
-}, 1000)
+setPeerId()
 
 let socketCreated = false
 

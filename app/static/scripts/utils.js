@@ -80,6 +80,27 @@ class Stack {
   }
 }
 
+// peerId setup
+
+async function setPeerId() {
+  for (let seconds = 5; seconds != 0; seconds--) {
+    await wait(1000)
+    if (myPeer._id) {
+      peerId = myPeer._id
+      return
+    }
+  }
+  throw new Error("failed to set PeerId")
+}
+
+async function wait(millis = 1000) {
+  return new Promise((res) => {
+    setTimeout(() => {
+      res(true)
+    }, millis)
+  })
+}
+
 function setMode(e) {
   if (!canvasReady) return
   const el = e.target
