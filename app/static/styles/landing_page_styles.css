@@ -210,7 +210,6 @@ footer {
   position: fixed;
   margin: auto;
   background-color: rgba(108, 240, 121, 1);
-  box-shadow: 5px 5px 5px rgba(108, 240, 121, 1);
   padding: 5%;
   width: 50%;
   border-radius: 10px;
@@ -251,7 +250,16 @@ footer {
   cursor: pointer;
 }
 
- #blur {
+input[type="text"] {
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-family: monospace;
+  padding-left: 10px;
+  height: 35px;
+  font-size: 95%;
+}
+
+#blur {
   position: absolute;
   background-color: rgba(160, 169, 161, 0.9);
   width: 100%;
