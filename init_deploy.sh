@@ -11,4 +11,3 @@ cd
 cd whiteBoard/app/devOps
 
 ./manage_service.sh
-./setup_nginx_conf.sh
