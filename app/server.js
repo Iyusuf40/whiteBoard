@@ -2,7 +2,6 @@ const express = require('express')
 const cors = require('cors')
 const router = require('./routes/index')
 const CanvasController = require('./controllers/CanvasController')
-const WebSocketServer = require('ws').WebSocketServer
 const PORT = process.env.NODE_PORT || 3001
 const app = express()
 

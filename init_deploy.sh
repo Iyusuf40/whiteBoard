@@ -11,3 +11,7 @@ cd
 cd whiteBoard/app/devOps
 
 ./manage_service.sh
+
+bash setup_nginx_conf.sh
+
+bash setup_ssl_cert.sh
