@@ -3,8 +3,9 @@ Description=server.js - A whiteboard app for developers
 After=network.target
 
 [Service]
+Environment=PATH="$PATH:/home/ubuntu/.nvm/versions/node/v22.11.0/bin"
 WorkingDirectory=/home/ubuntu/whiteBoard/app
-ExecStart=/usr/bin/node server.js
+ExecStart=node server.js
 Type=simple
 User=ubuntu
 Group=ubuntu
