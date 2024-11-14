@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Environment=PATH="$PATH:/home/ubuntu/.nvm/versions/node/v22.11.0/bin"
 WorkingDirectory=/home/ubuntu/whiteBoard/app
-ExecStart=node server.js
+ExecStart=/usr/bin/bash start_prod.sh
 Type=simple
 User=ubuntu
 Group=ubuntu
