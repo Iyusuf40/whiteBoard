@@ -54,7 +54,7 @@ async function handleCreateAcct(e) {
   e.preventDefault()
   const id = document.getElementById('create--act--id').value
   const password = document.getElementById('create--act--passwd').value
-  const body = JSON.stringify({id, password})
+  const body = JSON.stringify({ id, password })
   const data = await postData(baseUrl + 'account', body)
   if (!data) return alert('undefined behaviour occured during account creation')
   if (data.key) {
@@ -62,18 +62,20 @@ async function handleCreateAcct(e) {
     alert('account create success')
     hideActForm()
     hideBlur()
+    document.getElementById('create--acct--btn').style.display = 'none'
   } else if (data.error) {
-    alert (data.error)
+    alert(data.error)
   } else {
     throw new Error('undefined behavior occured')
   }
 }
 
 async function handleLoginSubmit(e) {
+  console.log('login')
   e.preventDefault()
   const id = document.getElementById('login--id').value
   const password = document.getElementById('login--passwd').value
-  const body = JSON.stringify({id, password})
+  const body = JSON.stringify({ id, password })
   const data = await postData(baseUrl + 'login', body)
   if (!data) return alert('undefined behaviour occured during login')
   if (data.key) {
@@ -81,8 +83,10 @@ async function handleLoginSubmit(e) {
     alert('login successful')
     hideLoginForm()
     hideBlur()
+    document.getElementById('create--acct--btn').style.display = 'none'
+    document.getElementById('login--btn').style.display = 'none'
   } else if (data.error) {
-    alert (data.error)
+    alert(data.error)
   } else {
     throw new Error('undefined behavior occured')
   }
@@ -99,21 +103,21 @@ function handleGoToCanvas() {
 function showActForm() {
   hideLoginForm()
   showBlur()
-  createAccountForm.style.display = 'block'
+  createAccountForm.classList.remove("hidden")
 }
 
 function showLoginForm() {
   hideActForm()
   showBlur()
-  loginForm.style.display = 'block'
+  loginForm.classList.remove("hidden")
 }
 
 function hideActForm() {
-  createAccountForm.style.display = 'none'
+  createAccountForm.classList.add("hidden")
 }
 
 function hideLoginForm() {
-  loginForm.style.display = 'none'
+  loginForm.classList.add("hidden")
 }
 
 function hideBlur() {
@@ -125,31 +129,31 @@ function showBlur() {
 }
 
 async function postData(url, data) {
-  const postOptLocal = {...postOpt, body: data}
+  const postOptLocal = { ...postOpt, body: data }
   return fetch(url, postOptLocal)
-  .then(data => {
-    return data.json()
-  })
-  .then((data) => {
-    return data
-  })
-  .catch((err) => {
-    console.error(err)
-    return null
-  })
+    .then(data => {
+      return data.json()
+    })
+    .then((data) => {
+      return data
+    })
+    .catch((err) => {
+      console.error(err)
+      return null
+    })
 }
 
 async function putData(url, data) {
-  const putOptLocal = {...putOpt, body: data}
+  const putOptLocal = { ...putOpt, body: data }
   return fetch(url, putOptLocal)
-  .then(data => {
-    return data.json()
-  })
-  .then((data) => {
-    return data
-  })
-  .catch((err) => {
-    console.error(err)
-    return null
-  })
+    .then(data => {
+      return data.json()
+    })
+    .then((data) => {
+      return data
+    })
+    .catch((err) => {
+      console.error(err)
+      return null
+    })
 }

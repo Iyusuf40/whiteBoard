@@ -1,8 +1,8 @@
-*{
+* {
   box-sizing: border-box;
 }
 
-body{
+body {
   background-color: #fff;
   height: 100%;
   overflow-y: auto;
@@ -10,7 +10,7 @@ body{
 
 
 .title {
-	color: #5C6AC4;
+  color: #5C6AC4;
 }
 
 .no--display {
@@ -51,7 +51,7 @@ input {
   font-family: monospace;
 }
 
-.sidepane--btns > input {
+.sidepane--btns>input {
   display: block;
   width: 70%;
   height: 1.4rem;
@@ -115,7 +115,7 @@ input {
   justify-content: space-between;
 }
 
-#color--picker > * {
+#color--picker>* {
   height: 2rem;
   width: 2rem;
   border-radius: 2rem;
