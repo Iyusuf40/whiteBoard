@@ -1,9 +1,7 @@
 const dbClient = require('../utils/dbClient')
 const UsersController = require('./UsersController')
 const MediaController = require('./MediaController')
-const { isKeyObject } = require('util/types')
 const WebSocketServer = require('ws').WebSocketServer
-const WebSocket = require('ws').WebSocket
 const v4 = require('uuid').v4
 
 class CanvasController {
@@ -113,7 +111,7 @@ class CanvasController {
     if (!key) return res.status(403).send({error: 'key missing'}) 
     if (
       !payload || 
-      !CanvasController.isValidateStackStructure(payload)
+      !CanvasController.isValidStackStructure(payload)
     ) return res.status(403).send({error: 'invalid payload: mainStack structure'}) 
     const canvasName = `${key}:${name}`
     const canvas = await CanvasController.findCanvas(canvasName)
@@ -175,7 +173,7 @@ class CanvasController {
     return canvas
   }
 
-  static isValidateStackStructure(stack) {
+  static isValidStackStructure(stack) {
 
     // if (!Object.keys(stack).length) return false
 
