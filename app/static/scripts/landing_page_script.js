@@ -1,6 +1,5 @@
 const createAccountForm = document.getElementById('create--act--form')
 const loginForm = document.getElementById('login--form')
-const showCreateActForm = document.getElementById('create--acct--btn')
 const showLoginActForm = document.getElementById('login--btn')
 const goToCanvas = document.getElementById('canvas--btn')
 const removeFormBtns = document.getElementsByClassName('remove--form')
@@ -33,7 +32,6 @@ const putOpt = {
 
 createAccountForm.addEventListener('submit', handleCreateAcct)
 loginForm.addEventListener('submit', handleLoginSubmit)
-showCreateActForm.addEventListener('click', showActForm)
 showLoginActForm.addEventListener('click', showLoginForm)
 goToCanvas.addEventListener('click', handleGoToCanvas)
 blur.addEventListener('click', hideAll)
@@ -57,17 +55,7 @@ async function handleCreateAcct(e) {
   const body = JSON.stringify({ id, password })
   const data = await postData(baseUrl + 'account', body)
   if (!data) return alert('undefined behaviour occured during account creation')
-  if (data.key) {
-    key = data.key
-    alert('account create success')
-    hideActForm()
-    hideBlur()
-    document.getElementById('create--acct--btn').style.display = 'none'
-  } else if (data.error) {
-    alert(data.error)
-  } else {
-    throw new Error('undefined behavior occured')
-  }
+  handleAuthResponse(data, 'Account creation successful')
 }
 
 async function handleLoginSubmit(e) {
@@ -78,19 +66,34 @@ async function handleLoginSubmit(e) {
   const body = JSON.stringify({ id, password })
   const data = await postData(baseUrl + 'login', body)
   if (!data) return alert('undefined behaviour occured during login')
-  if (data.key) {
-    key = data.key
-    alert('login successful')
-    hideLoginForm()
-    hideBlur()
-    document.getElementById('create--acct--btn').style.display = 'none'
-    document.getElementById('login--btn').style.display = 'none'
-  } else if (data.error) {
-    alert(data.error)
-  } else {
-    throw new Error('undefined behavior occured')
-  }
+  handleAuthResponse(data, 'Login successful')
 }
+
+function handleAuthResponse(data, successMessage) {
+  if (!data) {
+    alert('Undefined behavior occurred');
+    return false;
+  }
+
+  if (data.key) {
+    key = data.key;
+    alert(successMessage);
+    hideAll();
+    document.getElementById('login--btn').classList.add('hidden');
+    document.getElementById('hero-canvas-btn').classList.remove('hidden');
+    document.getElementById('hero-get-started-btn').classList.add('hidden');
+    goToCanvas.style.display = 'flex';
+    return true;
+  } 
+  
+  if (data.error) {
+    alert(data.error);
+    return false;
+  } 
+
+  throw new Error('Undefined behavior occurred');
+}
+
 
 function handleGoToCanvas() {
   if (!key) return alert('you are not logged in')
@@ -104,12 +107,14 @@ function showActForm() {
   hideLoginForm()
   showBlur()
   createAccountForm.classList.remove("hidden")
+  createAccountForm.classList.add("showing")
 }
 
 function showLoginForm() {
   hideActForm()
   showBlur()
   loginForm.classList.remove("hidden")
+  loginForm.classList.add("showing")
 }
 
 function hideActForm() {

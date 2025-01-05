@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <title>collab</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/styles/landing_page_styles.css" />
+  <link rel="stylesheet" href="/styles/output.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
@@ -12,30 +13,164 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200&family=Montserrat&display=swap"
     rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
-  <div id="blur"></div>
+  <div id="blur" class="fixed inset-0 w-full z-[15] hidden opacity-90 bg-customGray"></div>
+
+  <!-- ========== HEADER ========== -->
+  <div class="fixed w-full top-0 left-0 z-10">
+    <header class="bg-white border-b border-gray-200 flex flex-nowrap md:justify-start">
+      <nav
+        class="relative grow max-w-[85rem] md:flex md:items-center md:justify-between md:gap-3 px-4 sm:px-6 lg:px-8 py-2">
+        <!-- Logo w/ Collapse Button -->
+        <div class="flex items-center justify-between">
+          <a class="flex-none font-semibold text-xl text-black focus:outline-none focus:opacity-80" href="#"
+            aria-label="Brand">Collab</a>
+
+          <!-- Collapse Button -->
+          <div class="md:hidden">
+            <button type="button"
+              class="hs-collapse-toggle relative size-9 flex justify-center items-center text-sm font-semibold rounded-lg border border-gray-200 text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 disabled:opacity-50 disabled:pointer-events-none"
+              id="hs-header-classic-collapse" aria-expanded="false" aria-controls="hs-header-classic"
+              aria-label="Toggle navigation" data-hs-collapse="#hs-header-classic">
+              <svg class="hs-collapse-open:hidden size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <line x1="3" x2="21" y1="6" y2="6" />
+                <line x1="3" x2="21" y1="12" y2="12" />
+                <line x1="3" x2="21" y1="18" y2="18" />
+              </svg>
+              <svg class="hs-collapse-open:block shrink-0 hidden size-4" xmlns="http://www.w3.org/2000/svg" width="24"
+                height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+              <span class="sr-only">Toggle navigation</span>
+            </button>
+          </div>
+          <!-- End Collapse Button -->
+        </div>
+        <!-- End Logo w/ Collapse Button -->
+
+        <!-- Collapse -->
+        <div id="hs-header-classic"
+          class="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow md:block"
+          aria-labelledby="hs-header-classic-collapse">
+          <div
+            class="overflow-hidden overflow-y-auto max-h-[75vh] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
+            <div class="py-2 md:py-0 flex flex-col md:flex-row md:items-center md:justify-end gap-0.5 md:gap-1">
+              <a class="p-2 flex items-center text-sm text-blue-600 focus:outline-none focus:text-blue-600" href="#"
+                aria-current="page">
+                <svg class="shrink-0 size-4 me-3 md:me-2 block md:hidden" xmlns="http://www.w3.org/2000/svg" width="24"
+                  height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                  <path
+                    d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                </svg>
+                Home
+              </a>
+
+              <a class="p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                href="#about">
+                <svg class="shrink-0 size-4 me-3 md:me-2 block md:hidden" xmlns="http://www.w3.org/2000/svg" width="24"
+                  height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 12h.01" />
+                  <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                  <path d="M22 13a18.15 18.15 0 0 1-20 0" />
+                  <rect width="20" height="14" x="2" y="6" rx="2" />
+                </svg>
+                About
+              </a>
+
+              <a class="p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                href="#team">
+                <svg class="shrink-0 size-4 me-3 md:me-2 block md:hidden" xmlns="http://www.w3.org/2000/svg" width="24"
+                  height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+                  <path d="M18 14h-8" />
+                  <path d="M15 18h-5" />
+                  <path d="M10 6h8v4h-8V6Z" />
+                </svg>
+                Team
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- End Collapse -->
+      </nav>
+      <!-- Button Group -->
+      <div class="relative h-full mt-2">
+        <div id="login--btn"
+          class="relative top-0 left-0 flex flex-wrap items-center gap-x-1.5 md:ps-2.5 mt-1 md:mt-0 md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
+          <div
+            class="p-2 w-full flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+            href="#">
+            <svg class="shrink-0 size-4 me-3 md:me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            Sign in
+          </div>
+        </div>
+        <div id="canvas--btn"
+          class="relative top-0 left-0 hidden flex-wrap items-center gap-x-1.5 md:ps-2.5 mt-1 md:mt-0 md:ms-1.5 before:block before:absolute before:top-1/2 before:-start-px before:w-px before:h-4 before:bg-gray-300 before:-translate-y-1/2">
+          <div
+            class="p-2 w-full flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500">
+            <svg class="shrink-0 size-4 me-3 md:me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path
+                d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+              <path d="M18 14h-8" />
+              <path d="M15 18h-5" />
+              <path d="M10 6h8v4h-8V6Z" />
+            </svg>
+            Canvas
+          </div>
+        </div>
+      </div>
+
+      <!-- End Button Group -->
+    </header>
+  </div>
+  <!-- ========== END HEADER ========== -->
 
   <!-- start login form -->
-  <div id="login--form" class="hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto"
+  <div id="login--form" class="hidden mt-9 min-w-full fixed top-0 start-0 overflow-x-hidden z-20 overflow-y-auto"
     role="dialog" tabindex="-1" aria-labelledby="hs-modal-signin-label">
-    <div
-      class="mt-7 opacity-100 duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
+    <div class="opacity-100 sm:max-w-md sm:w-full sm:mx-auto relative">
       <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
         <div class="p-4 sm:p-7">
           <div class="text-center">
-            <h3 id="hs-modal-signin-label" class="block text-2xl font-bold text-gray-800">Sign in</h3>
+            <div class="bg-transparent block w-8 h-0.5 relative m-5" onclick="hideAll()" role="button" tabindex="0">
+              <span
+                class="before:absolute before:w-full before:block before:h-full before:bg-black before:content-[''] before:top-0 before:rotate-45 after:rotate-[-45deg] after:top-0 after:absolute after:w-full after:block after:h-full after:bg-black after:content-['']"></span>
+            </div>
+            <h1 class="block text-2xl font-bold text-gray-800">Sign in</h1>
+            <p class="mt-2 text-sm text-gray-600">
+              Don't have an account yet?
+              <span
+                class="text-blue-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-blue-500 cursor-pointer"
+                onclick="showActForm()">
+                Sign up here
+              </span>
+            </p>
           </div>
-
           <div class="mt-5">
             <!-- Form -->
-            <form>
+            <form class="mx-6">
               <div class="grid gap-y-4">
                 <!-- Form Group -->
                 <div>
-                  <label for="username" class="block text-sm mb-2">Username</label>
+                  <label for="username" class="block text-sm mb-2">Email or Username</label>
                   <div class="relative">
                     <input id="login--id" name="username"
                       class="py-3 px-4 block w-full border border-gray-400 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
@@ -78,10 +213,6 @@
                   Sign in
                 </button>
 
-                <button type="button" onclick="hideAll()"
-                  class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
-                  Cancel
-                </button>
               </div>
             </form>
             <!-- End Form -->
@@ -93,23 +224,28 @@
   <!-- end login form -->
 
   <!-- start sign up form -->
-  <div id="create--act--form" class="hidden size-full fixed top-0 start-0 z-[80] overflow-x-hidden overflow-y-auto"
+  <div id="create--act--form" class="hidden mt-9 min-w-full fixed top-0 start-0 z-20 overflow-x-hidden overflow-y-auto"
     role="dialog" tabindex="-1" aria-labelledby="hs-modal-signin-label">
-    <div
-      class="mt-7 opacity-100 duration-500 mt-0 opacity-0 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto">
+    <div class="opacity-100 sm:max-w-md sm:w-full sm:mx-auto">
       <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
         <div class="p-4 sm:p-7">
+
           <div class="text-center">
-            <h3 id="hs-modal-signin-label" class="block text-2xl font-bold text-gray-800">Sign up</h3>
+            <div class="bg-transparent block w-8 h-0.5 relative m-5" onclick="hideAll()" role="button" tabindex="0">
+              <span
+                class="before:absolute before:w-full before:block before:h-full before:bg-black before:content-[''] before:top-0 before:rotate-45 after:rotate-[-45deg] after:top-0 after:absolute after:w-full after:block after:h-full after:bg-black after:content-['']"></span>
+            </div>
+            <h1 class="block text-2xl font-bold text-gray-800">Sign up</h1>
           </div>
+
 
           <div class="mt-5">
             <!-- Form -->
-            <form>
+            <form class="mx-6">
               <div class="grid gap-y-4">
                 <!-- Form Group -->
                 <div>
-                  <label for="username" class="block text-sm mb-2">Username</label>
+                  <label for="username" class="block text-sm mb-2">Email or Username</label>
                   <div class="relative">
                     <input id="create--act--id" name="username"
                       class="py-3 px-4 block w-full border border-gray-400 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
@@ -151,10 +287,6 @@
                   Sign up
                 </button>
 
-                <button type="button" onclick="hideAll()"
-                  class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none">
-                  Cancel
-                </button>
               </div>
             </form>
             <!-- End Form -->
@@ -165,10 +297,10 @@
   </div>
   <!-- end signup form -->
 
-  <!-- Hero -->
-  <div class="relative overflow-hidden">
+  <!-- Hero V2 -->
+  <div class="relative mt-7 md:mt-8 overflow-hidden bg-[url('/svg/polygon-hero-bg.svg')]">
     <!-- Gradients -->
-    <div aria-hidden="true" class="flex absolute -top-96 start-1/2 transform -translate-x-1/2">
+    <div aria-hidden="true" class="flex absolute -top-96 start-1/2 transform -translate-x-1/2 opacity-50">
       <div
         class="bg-gradient-to-r from-violet-300/50 to-purple-100 blur-3xl w-[25rem] h-[44rem] rotate-[-60deg] transform -translate-x-[10rem] ">
       </div>
@@ -178,43 +310,56 @@
     </div>
     <!-- End Gradients -->
 
-    <div class="relative z-10">
-      <div class="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
-        <div class="max-w-2xl text-center mx-auto">
+    <div class="relative">
+      <div class="max-w-[85rem] flex flex-col mx-auto pb-6 px-4 sm:px-6 lg:px-14 pt-10 lg:pt-16 lg:leading-tight">
+        <div class="grid md:grid-cols-2 items-center gap-8">
           <!-- Title -->
-          <div class="mt-5 max-w-2xl">
-            <h1 class="block font-semibold text-gray-800 text-4xl md:text-5xl lg:text-6xl ">
-              Collab: The Simple Web WhiteBoarding Platform
+          <div class="">
+            <h1 class="block justify-center font-semibold text-gray-800 text-4xl md:text-5xl lg:text-6xl text-center ">
+              Collaborate In Real Time with WhiteBoard
             </h1>
+            <div class="max-w-3xl text-center mx-auto mt-6 md:mt-9">
+              <p class="text-lg ">Unleash Your Creativity With A Live State Of The Art Canvas And Seamless Web
+                Conferencing.</p>
+            </div>
           </div>
           <!-- End Title -->
 
-          <!-- Buttons -->
-          <div class="mt-8 gap-5 flex justify-center">
-            <div id="login--btn"
-              class="w-[100px] cursor-pointer justify-center py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-              sign in
-            </div>
-
-            <div id="create--acct--btn"
-              class="w-[100px] cursor-pointer justify-center py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-              sign up
-            </div>
-
-            <div id="canvas--btn"
-              class="w-[100px] cursor-pointer justify-center py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-              canvas
+          <div class="relative">
+            <img class="w-full rounded-md opacity-90" src="../images/hero-collab-ps.png" />
+          </div>
+        </div>
+        <div class="relative">
+          <div id="hero-get-started-btn" class="relative top-0 left-0 text-center mt-6 md:mt-9">
+            <div
+              class="inline-flex justify-center items-center gap-x-3 cursor-pointer  text-center bg-gradient-to-tl from-blue-700 to-blue-500 shadow-lg shadow-transparent hover:shadow-blue-700/50 border border-transparent text-white text-md font-medium rounded-full focus:outline-none focus:shadow-blue-700/50 py-3 px-6"
+              onclick="showLoginForm()">
+              Get started
+              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </div>
           </div>
-          <!-- End Buttons -->
+          <div id="hero-canvas-btn" class="relative hidden top-0 left-0 text-center mt-6 md:mt-9">
+            <div
+              class="inline-flex justify-center items-center gap-x-3 cursor-pointer text-center bg-gradient-to-tl from-blue-700 to-blue-500 shadow-lg shadow-transparent hover:shadow-blue-700/50 border border-transparent text-white text-md font-medium rounded-full focus:outline-none focus:shadow-blue-700/50 py-3 px-6"
+              onclick="handleGoToCanvas()">
+              Go to Canvas
+              <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <!-- End Hero -->
+  <!-- End Hero V2 -->
 
   <!-- Features 1 -->
-  <div class="max-w-[75rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+  <div id="about" class="max-w-[75rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
     <!-- Grid -->
     <div class="md:grid md:grid-cols-2 md:items-center md:gap-12 xl:gap-32">
       <div>
@@ -385,7 +530,7 @@
   <!-- End Features 2 -->
 
   <!-- Team -->
-  <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+  <div id="team" class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
     <!-- Title -->
     <div class="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
       <h2 class="text-2xl font-bold md:text-4xl md:leading-tight">Our Team</h2>
@@ -516,6 +661,7 @@
   <!-- ========== END FOOTER ========== -->
 
   <script src="/scripts/landing_page_script.js"></script>
+  <script src="/node_modules/preline/dist/preline.js"></script>
 </body>
 
 </html>
