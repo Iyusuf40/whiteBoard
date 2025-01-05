@@ -7,6 +7,7 @@ const app = express()
 
 app.use(cors())
 app.use(express.static('static'))
+app.use('/node_modules', express.static('node_modules'));
 app.use(express.json())
 app.set('view engine', 'ejs')
 app.use(router)
